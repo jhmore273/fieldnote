@@ -1,4 +1,5 @@
 import * as webpush from 'web-push';
+import {validPick,pickKey,lineNotification} from './line-alerts.js';
 
 export function validSubscription(s) {
   try {
@@ -81,8 +82,12 @@ export class Device {
     if (!validSubscription(body.subscription) || !Array.isArray(body.events) || body.events.length>40)
       return Response.json({error:'Suscripción inválida'}, {status:400});
     const events = [...new Set(body.events)].filter(id => /^\d{1,12}$/.test(id));
-    await this.ctx.storage.put({subscription:body.subscription,events,expires:Date.now()+90*86400000});
-    await this.ctx.storage.setAlarm(Date.now()+15000);
+    if(body.picks!==undefined && (!Array.isArray(body.picks) || body.picks.length>100 || body.picks.some(p=>!validPick(p,events))))
+      return Response.json({error:'Selecciones para avisos inválidas'}, {status:400});
+    const picks=[...new Map((body.picks || []).map(p=>[pickKey(p),{event:p.event,playerId:p.playerId,market:p.market,side:p.side,line:p.line,player:p.player.trim()}])).values()];
+    await this.ctx.storage.put({subscription:body.subscription,events,picks,expires:Date.now()+90*86400000});
+    const testAt=await this.ctx.storage.get('testAt');
+    await this.ctx.storage.setAlarm(testAt || Date.now()+15000);
     return Response.json({ok:true});
   }
   async alarm() {
@@ -95,6 +100,7 @@ export class Device {
       await this.send(s,{title:'Fieldnote · prueba',body:'¡Listo! Puedes recibir avisos con Fieldnote cerrada.',tag:'fieldnote-test',url:'/'});
     }
     const events=await this.ctx.storage.get('events') || [];
+    const picks=await this.ctx.storage.get('picks') || [];
     let active=false;
     for (const id of events) {
       try {
@@ -105,6 +111,16 @@ export class Device {
         const data=await r.json(), c=data.header?.competitions?.[0];
         if (!c?.status?.type || !c.date) continue;
         const current={completed:!!c.status.type.completed,state:c.status.type.state,date:c.date};
+        // La primera lectura de un partido ya terminado no genera avisos retrospectivos.
+        if(current.state==='in' || (current.completed && previous && !previous.completed)) {
+          for(const pick of picks.filter(p=>p.event===id)) {
+            const lineKey='sent:line:'+pickKey(pick);
+            if(await this.ctx.storage.get(lineKey))continue;
+            const payload=lineNotification(data,pick);
+            if(payload && await this.send(s,payload))await this.ctx.storage.put(lineKey,true);
+            if(!(await this.ctx.storage.get('subscription')))return;
+          }
+        }
         const kind=alertKind(previous,current);
         const name=c.competitors?.map(t=>t.team?.abbreviation).join(' vs. ') || 'Tu partido';
         const key='sent:'+id+':'+kind;

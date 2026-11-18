@@ -1,10 +1,10 @@
-/* Suscripción opcional por dispositivo. Nunca envía importes ni nombres de jugadores. */
+/* Suscripción opcional: sincroniza partidos y selecciones para avisos, sin importes. */
 (() => {
   const API = 'https://fieldnote-push.jhmoreno273.workers.dev';
   const panel = document.createElement('section');
   panel.className = 'settings-demo';
   panel.innerHTML = `<h3 class="settings-section-heading">Notificaciones</h3>
-    <p>Recibe un aviso antes del partido y al terminar, incluso con Fieldnote cerrada. Al activar, se guardan en Cloudflare la suscripción de este dispositivo y los identificadores de tus partidos durante 90 días desde la última sincronización.</p>
+    <p>Recibe avisos antes del partido, al terminar y cuando un jugador supere tu línea de más de: yardas, recepciones, pases completos, intentos de carrera, pases de TD o intercepciones. Los overs se avisan una sola vez por selección y son provisionales. Cloudflare guarda la suscripción, los partidos, jugadores y líneas que sigues durante 90 días desde la última sincronización.</p>
     <p id="push-status" role="status" aria-live="polite">Comprobando disponibilidad…</p>
     <div class="push-actions"><button type="button" id="push-enable" class="primary">Activar notificaciones</button>
     <button type="button" id="push-test" class="secondary" hidden>Enviar prueba en 10 segundos</button>
@@ -24,12 +24,19 @@
     try { return [...new Set(JSON.parse(localStorage.getItem('fieldnote-v1') || '[]').flatMap(p=>(p.legs || []).map(l=>String(l.event))))].filter(id=>/^\d{1,12}$/.test(id)).slice(0,40); }
     catch {return [];}
   }
+  function picks(ids) {
+    const supported=new Set(['passingYards','passingTouchdowns','completions','passingInterceptions','rushingYards','rushingAttempts','receivingYards','receptions']);
+    try {
+      const rows=JSON.parse(localStorage.getItem('fieldnote-v1') || '[]').flatMap(p=>p.legs || []).filter(l=>ids.includes(String(l.event)) && l.side==='over' && supported.has(l.market) && /^\d{1,12}$/.test(String(l.playerId || '')) && Number.isFinite(l.line) && typeof l.player==='string').map(l=>({event:String(l.event),playerId:String(l.playerId),player:l.player.slice(0,80),market:l.market,side:l.side,line:l.line}));
+      return [...new Map(rows.map(l=>[[l.event,l.playerId,l.market,l.side,l.line].join(':'),l])).values()].slice(0,100);
+    }catch{return [];}
+  }
   async function sync(force=false) {
     if(!subscription || syncing) return;
-    const ids=events(), next=JSON.stringify(ids);
+    const ids=events(), watched=picks(ids), next=JSON.stringify([ids,watched]);
     if(!force && signature===next) return;
     syncing=true;
-    try {await api('/subscription','POST',{subscription:subscription.toJSON(),events:ids}); signature=next; status.textContent='Activadas · '+ids.length+' partidos sincronizados. Los avisos dependen de la disponibilidad de ESPN.';}
+    try {await api('/subscription','POST',{subscription:subscription.toJSON(),events:ids,picks:watched}); signature=next; status.textContent='Activadas · '+ids.length+' partidos · '+watched.length+' selecciones con aviso de línea. Los avisos dependen de ESPN (revisión cada minuto en juego).';}
     finally {syncing=false;}
   }
   function buttons(on) {enable.hidden=on;test.hidden=!on;disable.hidden=!on;}

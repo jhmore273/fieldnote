@@ -26,6 +26,7 @@ test('Push: permisos, cifrado, prueba diferida, baja y transiciones',async()=>{
  map.set('testAt',Date.now()-1);map.set('events',[]);
  const original=global.fetch;let payload;
  global.fetch=async(url,options)=>{
+   assert.equal(options.redirect,'manual','Workers solo admite follow o manual');
    assert.equal(url,sub.endpoint);
    assert.match(options.headers.Authorization || options.headers.authorization,/vapid/);
    payload=JSON.parse(ece.decrypt(Buffer.from(options.body),{version:'aes128gcm',privateKey:receiver,authSecret:auth}).toString());
@@ -33,6 +34,7 @@ test('Push: permisos, cifrado, prueba diferida, baja y transiciones',async()=>{
  };
  try{await device.alarm();}finally{global.fetch=original;}
  assert.equal(payload.tag,'fieldnote-test');assert.equal(map.has('testAt'),false);
+ assert.equal(map.get('delivery').state,'accepted');
  await device.fetch(new Request('https://push.example/subscription',{method:'DELETE'}));assert.equal(map.size,0);assert.equal(alarm,null);
  assert.equal((await worker.fetch(new Request('https://push.example/config'),env)).status,403);
  assert.equal((await worker.fetch(new Request('https://push.example/config',{headers:{Origin:env.APP_ORIGIN}}),env)).status,200);

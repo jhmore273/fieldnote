@@ -47,7 +47,26 @@
       await sync(true);buttons(true);
     } catch(e) {error(e);} finally {enable.disabled=false;}
   };
-  test.onclick=async()=>{test.disabled=true;try{await sync(true);await api('/test');status.textContent='Prueba programada. Bloquea tu iPhone: llegará en unos 10 segundos.';}catch(e){error(e);}finally{test.disabled=false;}};
+  test.onclick=async()=>{
+    test.disabled=true;
+    try {
+      await sync(true);await api('/test');
+      status.textContent='Prueba programada. Bloquea tu iPhone: se enviará en unos 10 segundos.';
+      let attempts=0;
+      const timer=setInterval(async()=>{
+        try {
+          const result=await api('/test-status','GET');
+          if(result.delivery?.state==='accepted') {
+            status.textContent='El servicio de notificaciones aceptó la prueba. Si no aparece, revisa los avisos de Fieldnote y el modo Concentración en Ajustes del iPhone.';
+          } else if(result.delivery?.state==='failed') {
+            status.textContent=[404,410].includes(result.delivery.code)?'La suscripción venció. Pulsa Desactivar y vuelve a activar las notificaciones.':'No se pudo enviar la prueba. Intenta nuevamente; si continúa, indica este código: '+result.delivery.code;
+          } else if(++attempts<20) return;
+          else status.textContent='Todavía no se confirmó el envío. Intenta otra prueba en unos segundos.';
+        } catch(e) {error(e);}
+        clearInterval(timer);test.disabled=false;
+      },2000);
+    } catch(e) {error(e);test.disabled=false;}
+  };
   disable.onclick=async()=>{disable.disabled=true;try{await api('/subscription','DELETE');if(subscription)await subscription.unsubscribe();subscription=null;signature='';buttons(false);status.textContent='Desactivadas. Se borró la suscripción del servidor.';}catch(e){error(e);}finally{disable.disabled=false;}};
   async function init() {
     if(ios && !installed) {enable.disabled=true;status.textContent='En iPhone: abre esta página en Safari → Compartir → Agregar a pantalla de inicio. Después abre Fieldnote desde su icono.';return;}

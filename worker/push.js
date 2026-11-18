@@ -40,19 +40,24 @@ export class Device {
         vapidDetails:{subject:this.env.APP_ORIGIN, publicKey:this.env.VAPID_PUBLIC_KEY, privateKey:this.env.VAPID_PRIVATE_KEY},
         TTL:900, timeout:12000
       });
-      const response = await fetch(details.endpoint, {method:'POST',headers:details.headers,body:details.body,redirect:'error',signal:AbortSignal.timeout(12000)});
+      const response = await fetch(details.endpoint, {method:'POST',headers:details.headers,body:details.body,redirect:'manual',signal:AbortSignal.timeout(12000)});
       if(!response.ok) throw Object.assign(new Error('Push rechazado'),{statusCode:response.status});
+      await this.ctx.storage.put('delivery',{state:'accepted',at:Date.now()});
       return true;
     } catch (e) {
+      console.error('push_send_failed',e.name,e.code || '',e.message.replace(/https?:\/\/\S+/g,'[endpoint]'));
       if (e.statusCode === 404 || e.statusCode === 410) {
         await this.ctx.storage.deleteAll();
         await this.ctx.storage.deleteAlarm();
       }
+      await this.ctx.storage.put('delivery',{state:'failed',at:Date.now(),code:e.statusCode || e.code || 'send_error'});
       return false;
     }
   }
   async fetch(request) {
     const path = new URL(request.url).pathname;
+    if(request.method === 'GET' && path === '/test-status')
+      return Response.json({delivery:await this.ctx.storage.get('delivery') || null,pending:!!(await this.ctx.storage.get('testAt'))});
     if (request.method === 'DELETE' && path === '/subscription') {
       await this.ctx.storage.deleteAll(); await this.ctx.storage.deleteAlarm();
       return Response.json({ok:true});
@@ -64,6 +69,7 @@ export class Device {
       const last = await this.ctx.storage.get('lastTest') || 0;
       if (Date.now()-last < 30000) return Response.json({error:'Espera 30 segundos entre pruebas'}, {status:429});
       await this.ctx.storage.put('lastTest', Date.now());
+      await this.ctx.storage.put('delivery',{state:'queued',at:Date.now()});
       await this.ctx.storage.put('testAt', Date.now()+10000);
       await this.ctx.storage.setAlarm(Date.now()+10000);
       return Response.json({ok:true});

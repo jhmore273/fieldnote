@@ -1,0 +1,170 @@
+[
+  {
+    "id": "general",
+    "label": "Conexión general",
+    "title": "Fieldnote lista",
+    "body": "Puedes recibir notificaciones con la app cerrada."
+  },
+  {
+    "id": "moneyline",
+    "label": "Money Line · anticipo +17",
+    "title": "Anticipo +17 cumplido",
+    "body": "HOU alcanzó 17 puntos de ventaja. Confirma el abono con tu casa."
+  },
+  {
+    "id": "moneyline-final",
+    "label": "Money Line · victoria final",
+    "title": "Money Line ganada",
+    "body": "HOU ganó al finalizar el partido."
+  },
+  {
+    "id": "spread",
+    "label": "Spread · línea cubierta",
+    "title": "Spread cubierto",
+    "body": "HOU cubrió su línea de −3.5 al terminar el partido."
+  },
+  {
+    "id": "totalPoints",
+    "label": "Puntos totales · over",
+    "title": "Línea de puntos superada",
+    "body": "El partido lleva 45 puntos: más de 44.5."
+  },
+  {
+    "id": "totalPoints-under",
+    "label": "Puntos totales · under rebasado",
+    "title": "Límite de puntos superado",
+    "body": "El partido lleva 45 puntos y tu pick era menos de 44.5."
+  },
+  {
+    "id": "totalPoints-under-final",
+    "label": "Puntos totales · under cumplido",
+    "title": "Total de puntos cumplido",
+    "body": "El partido terminó con 40 puntos: menos de 44.5."
+  },
+  {
+    "id": "teamTotalPoints",
+    "label": "Puntos de equipo",
+    "title": "Línea de puntos superada",
+    "body": "HOU lleva 25 puntos: más de 24.5."
+  },
+  {
+    "id": "passingYards",
+    "label": "Yardas de pase · 25%",
+    "title": "Avance 25% · C.J. Stroud",
+    "body": "¡C.J. Stroud lleva 57 yardas de pase! Línea: más de 224.5."
+  },
+  {
+    "id": "passingTouchdowns",
+    "label": "Pases de touchdown · +1",
+    "title": "Nuevo pase de touchdown",
+    "body": "¡C.J. Stroud lleva 2 pases de touchdown (+1)!"
+  },
+  {
+    "id": "completions",
+    "label": "Pases completos · 50%",
+    "title": "Avance 50% · C.J. Stroud",
+    "body": "C.J. Stroud lleva 11 pases completos. Línea: más de 21.5."
+  },
+  {
+    "id": "passingInterceptions",
+    "label": "Intercepciones lanzadas · +1",
+    "title": "Nueva intercepción",
+    "body": "C.J. Stroud lleva 1 intercepción lanzada (+1)."
+  },
+  {
+    "id": "rushingYards",
+    "label": "Yardas por tierra · 75%",
+    "title": "Avance 75% · David Montgomery",
+    "body": "¡David Montgomery lleva 23 yardas por tierra! Línea: más de 29.5."
+  },
+  {
+    "id": "rushingAttempts",
+    "label": "Intentos de carrera · 50%",
+    "title": "Avance 50% · David Montgomery",
+    "body": "David Montgomery lleva 8 intentos de carrera. Línea: más de 14.5."
+  },
+  {
+    "id": "receivingYards-25",
+    "label": "Yardas de recepción · 25%",
+    "title": "Avance 25% · Nico Collins",
+    "body": "¡Nico Collins lleva 13 yardas de recepción! Línea: más de 49.5."
+  },
+  {
+    "id": "receivingYards-50",
+    "label": "Yardas de recepción · 50%",
+    "title": "Avance 50% · Nico Collins",
+    "body": "¡Nico Collins lleva 25 yardas de recepción! Línea: más de 49.5."
+  },
+  {
+    "id": "receivingYards-75",
+    "label": "Yardas de recepción · 75%",
+    "title": "Avance 75% · Nico Collins",
+    "body": "¡Nico Collins lleva 38 yardas de recepción! Línea: más de 49.5."
+  },
+  {
+    "id": "receivingYards",
+    "label": "Yardas de recepción · línea superada",
+    "title": "Línea superada · Nico Collins",
+    "body": "¡Nico Collins lleva 50 yardas de recepción! Superó tu línea de 49.5."
+  },
+  {
+    "id": "receptions",
+    "label": "Cantidad de recepciones · 75%",
+    "title": "Avance 75% · Nico Collins",
+    "body": "Nico Collins lleva 5 recepciones. Línea: más de 5.5."
+  },
+  {
+    "id": "anytimeTouchdown",
+    "label": "Touchdown en cualquier momento · +1",
+    "title": "Touchdown · Nico Collins",
+    "body": "¡Nico Collins lleva 1 touchdown anotado (+1)!"
+  },
+  {
+    "id": "firstTouchdown",
+    "label": "Primer anotador · sí",
+    "title": "Primer touchdown · Nico Collins",
+    "body": "Sí: Nico Collins anotó el primer touchdown del partido."
+  },
+  {
+    "id": "firstTouchdown-no",
+    "label": "Primer anotador · no",
+    "title": "Primer touchdown · Nico Collins",
+    "body": "No: otro jugador anotó el primer touchdown del partido."
+  },
+  {
+    "id": "totalFieldGoals",
+    "label": "Goles de campo · 50%",
+    "title": "Avance 50% · goles de campo",
+    "body": "El partido lleva 2 goles de campo anotados. Línea: más de 3.5."
+  },
+  {
+    "id": "under-progress",
+    "label": "Under · consumo de línea",
+    "title": "Avance 75% del límite",
+    "body": "Nico Collins lleva 38 yardas. Tu pick es menos de 49.5: es consumo del límite, no un acierto."
+  },
+  {
+    "id": "parlay-start",
+    "label": "Parlay · partido por comenzar",
+    "title": "Tu partido está por comenzar",
+    "body": "HOU vs. IND comienza en menos de 15 minutos."
+  },
+  {
+    "id": "parlay-win",
+    "label": "Parlay · cumplido",
+    "title": "Parlay terminado · ejemplo",
+    "body": "¡Todos los partidos terminaron y se cumplieron todas tus selecciones!"
+  },
+  {
+    "id": "parlay-loss",
+    "label": "Parlay · no cumplido",
+    "title": "Parlay terminado · ejemplo",
+    "body": "Todos los partidos terminaron. No se cumplió: una o más selecciones no acertaron."
+  },
+  {
+    "id": "parlay-push",
+    "label": "Parlay · empate / push",
+    "title": "Parlay terminado · ejemplo",
+    "body": "Terminó con selecciones empatadas / push. Confirma el ajuste con tu casa."
+  }
+]

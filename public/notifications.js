@@ -7,11 +7,28 @@
     <p>Notificaciones según tu pick: hitos 25%, 50%, 75% y línea cumplida; aumentos de TD o intercepciones; cruces de puntos; anticipo +17; spread al final y primer anotador de touchdown. En unders, los hitos indican consumo del límite y rebasarlo no es un acierto. Un salto de varios hitos envía solo el más alto. Los aumentos simultáneos se agrupan en un aviso. Antes de cada partido recibes un aviso; al terminar todos los partidos, el resultado del parlay. Datos provisionales de ESPN. Cloudflare conserva suscripción, selecciones y agrupación de parlays por hasta 90 días desde la última sincronización.</p>
     <p id="push-status" role="status" aria-live="polite">Comprobando disponibilidad…</p>
     <div class="push-actions"><button type="button" id="push-enable" class="primary">Activar notificaciones</button>
-    <button type="button" id="push-test" class="secondary" hidden>Enviar prueba en 10 segundos</button>
-    <button type="button" id="push-disable" class="secondary" hidden>Desactivar</button></div>`;
+
+    <button type="button" id="push-disable" class="secondary" hidden>Desactivar</button></div>
+    <section class="push-testing" aria-labelledby="push-test-heading"><h4 id="push-test-heading">Probar notificaciones</h4><p>Elige un ejemplo simulado. Se envía en 10 segundos para que puedas bloquear tu teléfono. No cambia tus selecciones.</p><label for="push-test-type">Tipo de prueba</label><select id="push-test-type" disabled><option value="general">Conexión general</option></select><div class="push-test-preview"><strong id="push-test-preview-title">[PRUEBA] Fieldnote lista</strong><p id="push-test-preview-body">Puedes recibir notificaciones con la app cerrada.</p></div><div class="push-actions"><button type="button" id="push-test" class="secondary" hidden>Enviar esta prueba en 10 segundos</button></div><small>Requiere activar las notificaciones. Espera 30 segundos entre pruebas.</small><p id="push-test-load" role="status"></p></section>`;
   document.querySelector('#backup-dialog .settings-demo').before(panel);
   const status=panel.querySelector('#push-status'), enable=panel.querySelector('#push-enable'),
     test=panel.querySelector('#push-test'), disable=panel.querySelector('#push-disable');
+  const testChoice=panel.querySelector('#push-test-type');
+  async function loadTestCases(){
+    try {
+      const r=await fetch('/notification-test-cases.json?v=pick-tests-1');if(!r.ok)throw Error();
+      const cases=await r.json();testChoice.replaceChildren();
+      for(const c of cases){const option=document.createElement('option');option.value=c.id;option.textContent=c.label;testChoice.append(option);}
+      testChoice.disabled=false;
+      testChoice.onchange=()=>{
+        const c=cases.find(x=>x.id===testChoice.value);
+        panel.querySelector('#push-test-preview-title').textContent='[PRUEBA] '+c.title;
+        panel.querySelector('#push-test-preview-body').textContent=c.body+' Simulación: no modifica tus picks.';
+      };
+      testChoice.onchange();
+    }catch{panel.querySelector('#push-test-load').textContent='No se pudieron cargar los ejemplos. Recarga la app para reintentar.';}
+  }
+  loadTestCases();
   const ios=/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
   const installed=matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   let registration, subscription, token=localStorage.getItem('fieldnote-push-token'), signature='', syncing=false;
@@ -61,8 +78,8 @@
   test.onclick=async()=>{
     test.disabled=true;
     try {
-      await sync(true);await api('/test');
-      status.textContent='Prueba programada. Bloquea tu iPhone: se enviará en unos 10 segundos.';
+      await sync(true);await api('/test','POST',{type:testChoice.value});
+      status.textContent='Prueba «'+testChoice.selectedOptions[0].textContent+'» programada. Bloquea tu teléfono: se enviará en unos 10 segundos.';
       let attempts=0;
       const timer=setInterval(async()=>{
         try {

@@ -1,4 +1,5 @@
 import * as webpush from 'web-push';
+import testCases from '../public/notification-test-cases.json' with {type:'json'};
 import {validWatch,watchKey,ruleUpdate,parlayResult} from './notification-rules.js';
 
 export function validSubscription(s) {
@@ -58,7 +59,7 @@ export class Device {
   async fetch(request) {
     const path = new URL(request.url).pathname;
     if(request.method === 'GET' && path === '/test-status')
-      return Response.json({delivery:await this.ctx.storage.get('delivery') || null,pending:!!(await this.ctx.storage.get('testAt'))});
+      return Response.json({delivery:await this.ctx.storage.get('testDelivery') || await this.ctx.storage.get('delivery') || null,pending:!!(await this.ctx.storage.get('testAt'))});
     if (request.method === 'DELETE' && path === '/subscription') {
       await this.ctx.storage.deleteAll(); await this.ctx.storage.deleteAlarm();
       return Response.json({ok:true});
@@ -67,10 +68,18 @@ export class Device {
     if (path === '/test') {
       const s = await this.ctx.storage.get('subscription');
       if (!s) return Response.json({error:'Activa las notificaciones primero'}, {status:400});
+      let testCase='general';
+      try {
+        const raw=await request.text();if(raw.length>256)throw Error();
+        if(raw)testCase=JSON.parse(raw).type || 'general';
+      }catch{return Response.json({error:'Prueba inválida'}, {status:400});}
+      if(!testCases.some(t=>t.id===testCase))return Response.json({error:'Tipo de prueba no disponible'}, {status:400});
       const last = await this.ctx.storage.get('lastTest') || 0;
       if (Date.now()-last < 30000) return Response.json({error:'Espera 30 segundos entre pruebas'}, {status:429});
       await this.ctx.storage.put('lastTest', Date.now());
       await this.ctx.storage.put('delivery',{state:'queued',at:Date.now()});
+      await this.ctx.storage.put('testDelivery',{state:'queued',at:Date.now()});
+      await this.ctx.storage.put('testCase',testCase);
       await this.ctx.storage.put('testAt', Date.now()+10000);
       await this.ctx.storage.setAlarm(Date.now()+10000);
       return Response.json({ok:true});
@@ -100,7 +109,10 @@ export class Device {
     const testAt = await this.ctx.storage.get('testAt');
     if (testAt && testAt <= Date.now()) {
       await this.ctx.storage.delete('testAt');
-      await this.send(s,{title:'Fieldnote · prueba',body:'¡Listo! Puedes recibir avisos con Fieldnote cerrada.',tag:'fieldnote-test',url:'/'});
+      const id=await this.ctx.storage.get('testCase') || 'general';
+      const example=testCases.find(t=>t.id===id) || testCases[0];
+      const ok=await this.send(s,{title:'[PRUEBA] '+example.title,body:example.body+' Simulación: no modifica tus picks.',tag:'fieldnote-test',url:'/'});
+      await this.ctx.storage.put('testDelivery',{state:ok?'accepted':'failed',at:Date.now(),code:(await this.ctx.storage.get('delivery'))?.code || null});
     }
     const events=await this.ctx.storage.get('events') || [];
     const picks=await this.ctx.storage.get('picks') || [];

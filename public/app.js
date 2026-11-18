@@ -1550,7 +1550,6 @@ function render() {
   $("#refresh").disabled = busy || demoMode;
   renderConnectionStatus();
   $("#emptynew")?.addEventListener("click", openEditor);
-  document.querySelectorAll("[data-demo]").forEach((b) => (b.onclick = enterDemo));
   document.querySelectorAll("[data-toggle]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -1580,12 +1579,14 @@ function render() {
   animateRenderedEvents(motionBefore);
 }
 function enterDemo() {
-  $("#backup-dialog").close();
   demoMode = true;
   filter = "all";
+  expandedParlays.add(demoParlays[0].id);
   setFilterButtons();
   render();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  $("#backup-dialog").close();
+  $("#demo-banner").focus({ preventScroll: true });
+  $("#demo-banner").scrollIntoView({ block: "start" });
 }
 function exitDemo() {
   demoMode = false;
@@ -2146,6 +2147,7 @@ document
   .querySelectorAll("[data-backup]")
   .forEach((b) => (b.onclick = () => $("#backup-dialog").showModal()));
 $("#close-backup").onclick = () => $("#backup-dialog").close();
+$("#backup-dialog [data-demo]").onclick = enterDemo;
 $("#exit-demo").onclick = exitDemo;
 paintIcons();
 // Apariencia final: Pizarra y Tomorrow, sin selectores de diseño.

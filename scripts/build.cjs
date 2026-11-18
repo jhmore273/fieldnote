@@ -3,6 +3,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const root = path.resolve(__dirname, '..');
+execFileSync(process.execPath, [path.join(__dirname, 'build-notification-evaluator.cjs')], { stdio: 'inherit', cwd: root });
 const source = path.join(root, 'public');
 const output = path.join(root, 'dist');
 // Solo se limpia la carpeta dist del propio proyecto. Nunca se siguen enlaces.

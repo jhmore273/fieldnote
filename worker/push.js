@@ -1,5 +1,5 @@
 import * as webpush from 'web-push';
-import {validPick,pickKey,lineNotification} from './line-alerts.js';
+import {validWatch,watchKey,ruleUpdate,parlayResult} from './notification-rules.js';
 
 export function validSubscription(s) {
   try {
@@ -27,7 +27,7 @@ export default {
       return Response.json({publicKey: env.VAPID_PUBLIC_KEY}, {headers});
     const token = request.headers.get('Authorization')?.replace(/^Bearer /, '');
     if (!/^[a-f0-9]{64}$/.test(token || '')) return new Response('No autorizado', {status:401,headers});
-    if (Number(request.headers.get('Content-Length')) > 24000) return new Response('Demasiados datos', {status:413,headers});
+    if (Number(request.headers.get('Content-Length')) > 64000) return new Response('Demasiados datos', {status:413,headers});
     const id = env.DEVICES.idFromName(token);
     const response = await env.DEVICES.get(id).fetch(request);
     return new Response(response.body, {status:response.status, headers:{...headers,'Content-Type':'application/json'}});
@@ -77,15 +77,18 @@ export class Device {
     }
     if (path !== '/subscription') return Response.json({error:'Ruta no disponible'}, {status:404});
     let body;
-    try { const raw=await request.text(); if(raw.length>24000) throw Error(); body=JSON.parse(raw); }
+    try { const raw=await request.text(); if(raw.length>64000) throw Error(); body=JSON.parse(raw); }
     catch {return Response.json({error:'Datos inválidos'}, {status:400});}
     if (!validSubscription(body.subscription) || !Array.isArray(body.events) || body.events.length>40)
       return Response.json({error:'Suscripción inválida'}, {status:400});
     const events = [...new Set(body.events)].filter(id => /^\d{1,12}$/.test(id));
-    if(body.picks!==undefined && (!Array.isArray(body.picks) || body.picks.length>100 || body.picks.some(p=>!validPick(p,events))))
+    if(body.picks!==undefined && (!Array.isArray(body.picks) || body.picks.length>100 || body.picks.some(p=>!validWatch(p,events))))
       return Response.json({error:'Selecciones para avisos inválidas'}, {status:400});
-    const picks=[...new Map((body.picks || []).map(p=>[pickKey(p),{event:p.event,playerId:p.playerId,market:p.market,side:p.side,line:p.line,player:p.player.trim()}])).values()];
-    await this.ctx.storage.put({subscription:body.subscription,events,picks,expires:Date.now()+90*86400000});
+    const picks=[...new Map((body.picks || []).map(p=>[watchKey(p),{event:p.event,playerId:p.playerId || null,teamId:p.teamId || null,market:p.market,side:p.side,line:p.line,player:p.player.trim(),earlyPayout17:p.earlyPayout17}])).values()];
+    const keys=new Set(picks.map(watchKey));
+    const parlays=body.parlays || [];
+    if(!Array.isArray(parlays) || parlays.length>40 || parlays.some(p=>!p || typeof p.id!=='string' || p.id.length>128 || typeof p.name!=='string' || p.name.length>80 || !Array.isArray(p.picks) || !p.picks.length || p.picks.length>100 || p.picks.some(k=>!keys.has(k))))return Response.json({error:'Parlays inválidos'}, {status:400});
+    await this.ctx.storage.put({subscription:body.subscription,events,picks,parlays,expires:Date.now()+90*86400000});
     const testAt=await this.ctx.storage.get('testAt');
     await this.ctx.storage.setAlarm(testAt || Date.now()+15000);
     return Response.json({ok:true});
@@ -105,26 +108,36 @@ export class Device {
     for (const id of events) {
       try {
         const previous=await this.ctx.storage.get('event:'+id);
-        if (previous?.completed) continue;
+        if(previous?.completed && !previous.retry){
+          const results=await Promise.all(picks.filter(p=>p.event===id).map(p=>this.ctx.storage.get('result:'+watchKey(p))));
+          if(results.every(r=>r?.done && r.outcome))continue;
+        }
         const r=await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event='+id,{signal:AbortSignal.timeout(12000)});
         if (!r.ok) continue;
         const data=await r.json(), c=data.header?.competitions?.[0];
         if (!c?.status?.type || !c.date) continue;
         const current={completed:!!c.status.type.completed,state:c.status.type.state,date:c.date};
-        // La primera lectura de un partido ya terminado no genera avisos retrospectivos.
-        if(current.state==='in' || (current.completed && previous && !previous.completed)) {
-          for(const pick of picks.filter(p=>p.event===id)) {
-            const lineKey='sent:line:'+pickKey(pick);
-            if(await this.ctx.storage.get(lineKey))continue;
-            const payload=lineNotification(data,pick);
-            if(payload && await this.send(s,payload))await this.ctx.storage.put(lineKey,true);
-            if(!(await this.ctx.storage.get('subscription')))return;
+        let retry=false;
+        for(const pick of picks.filter(p=>p.event===id)) {
+          const key=watchKey(pick),old=await this.ctx.storage.get('rule:'+key) || {};
+          // Conserva los avisos de línea ya enviados por la versión anterior.
+          if(['passingYards','completions','rushingYards','rushingAttempts','receivingYards','receptions'].includes(pick.market) &&
+             await this.ctx.storage.get('sent:line:'+key.slice(0,-1)))old.level=100;
+          const update=ruleUpdate(data,pick,old);
+          await this.ctx.storage.put('result:'+key,update.result);
+          const eligible=current.state==='in' || (current.completed && previous && (!previous.completed || previous.retry));
+          if(!update.notification || !eligible || await this.send(s,update.notification))await this.ctx.storage.put('rule:'+key,update.state);
+          else {
+            retry=true;
+            await this.ctx.storage.put('rule:'+key,{...old,maxLead:update.state.maxLead,earlyReached:update.state.earlyReached});
           }
+          if(!(await this.ctx.storage.get('subscription')))return;
         }
+        current.retry=retry;
         const kind=alertKind(previous,current);
         const name=c.competitors?.map(t=>t.team?.abbreviation).join(' vs. ') || 'Tu partido';
         const key='sent:'+id+':'+kind;
-        if(kind && !(await this.ctx.storage.get(key))) {
+        if(kind==='start' && !(await this.ctx.storage.get(key))) {
           const body=kind==='start' ? name+' comienza en menos de 15 minutos.' : name+' terminó. Revisa tus selecciones; los resultados son provisionales.';
           if(await this.send(s,{title:kind==='start'?'Tu partido está por comenzar':'Partido terminado',body,tag:id+'-'+kind,url:'/?event='+id}))
             await this.ctx.storage.put(key,true);
@@ -132,6 +145,18 @@ export class Device {
         await this.ctx.storage.put('event:'+id,current);
         if(!current.completed && (current.state==='in' || Date.parse(current.date)-Date.now()<30*60000)) active=true;
       } catch { /* El siguiente ciclo reintenta sin inventar resultados. */ }
+    }
+    for(const parlay of await this.ctx.storage.get('parlays') || []) {
+      const fingerprint=parlay.id+':'+parlay.picks.slice().sort().join('|');
+      const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(fingerprint));
+      const key=Array.from(new Uint8Array(bytes),x=>x.toString(16).padStart(2,'0')).join('');
+      const results=await Promise.all(parlay.picks.map(k=>this.ctx.storage.get('result:'+k)));
+      if(results.some(r=>!r?.done))await this.ctx.storage.put('active:'+key,true);
+      const text=parlayResult(results);
+      if(text && await this.ctx.storage.get('active:'+key) && !(await this.ctx.storage.get('parlay-sent:'+key))) {
+        if(await this.send(s,{title:'Parlay terminado · '+parlay.name,body:text+' Resultado provisional; confirma la liquidación.',tag:'parlay:'+key,url:'/'}))await this.ctx.storage.put('parlay-sent:'+key,true);
+        if(!(await this.ctx.storage.get('subscription')))return;
+      }
     }
     if(await this.ctx.storage.get('subscription')) {
       const pendingTest=await this.ctx.storage.get('testAt');

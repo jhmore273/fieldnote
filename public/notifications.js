@@ -4,7 +4,7 @@
   const panel = document.createElement('section');
   panel.className = 'settings-demo';
   panel.innerHTML = `<h3 class="settings-section-heading">Notificaciones</h3>
-    <p>Recibe avisos antes del partido, al terminar y cuando un jugador supere tu línea de más de: yardas, recepciones, pases completos, intentos de carrera, pases de TD o intercepciones. Los overs se avisan una sola vez por selección y son provisionales. Cloudflare guarda la suscripción, los partidos, jugadores y líneas que sigues durante 90 días desde la última sincronización.</p>
+    <p>Notificaciones según tu pick: hitos 25%, 50%, 75% y línea cumplida; aumentos de TD o intercepciones; cruces de puntos; anticipo +17; spread al final y primer anotador de touchdown. En unders, los hitos indican consumo del límite y rebasarlo no es un acierto. Un salto de varios hitos envía solo el más alto. Los aumentos simultáneos se agrupan en un aviso. Antes de cada partido recibes un aviso; al terminar todos los partidos, el resultado del parlay. Datos provisionales de ESPN. Cloudflare conserva suscripción, selecciones y agrupación de parlays por hasta 90 días desde la última sincronización.</p>
     <p id="push-status" role="status" aria-live="polite">Comprobando disponibilidad…</p>
     <div class="push-actions"><button type="button" id="push-enable" class="primary">Activar notificaciones</button>
     <button type="button" id="push-test" class="secondary" hidden>Enviar prueba en 10 segundos</button>
@@ -24,19 +24,23 @@
     try { return [...new Set(JSON.parse(localStorage.getItem('fieldnote-v1') || '[]').flatMap(p=>(p.legs || []).map(l=>String(l.event))))].filter(id=>/^\d{1,12}$/.test(id)).slice(0,40); }
     catch {return [];}
   }
-  function picks(ids) {
-    const supported=new Set(['passingYards','passingTouchdowns','completions','passingInterceptions','rushingYards','rushingAttempts','receivingYards','receptions']);
+  const supported=new Set(['moneyline','spread','totalPoints','teamTotalPoints','passingYards','passingTouchdowns','completions','passingInterceptions','rushingYards','rushingAttempts','receivingYards','receptions','anytimeTouchdown','firstTouchdown','totalFieldGoals']);
+  function watchKey(p){return [p.event,p.playerId || p.teamId || 'game',p.market,p.side,p.line,p.market==='moneyline'?p.earlyPayout17!==false:''].join(':');}
+  function watchlist(ids) {
     try {
-      const rows=JSON.parse(localStorage.getItem('fieldnote-v1') || '[]').flatMap(p=>p.legs || []).filter(l=>ids.includes(String(l.event)) && l.side==='over' && supported.has(l.market) && /^\d{1,12}$/.test(String(l.playerId || '')) && Number.isFinite(l.line) && typeof l.player==='string').map(l=>({event:String(l.event),playerId:String(l.playerId),player:l.player.slice(0,80),market:l.market,side:l.side,line:l.line}));
-      return [...new Map(rows.map(l=>[[l.event,l.playerId,l.market,l.side,l.line].join(':'),l])).values()].slice(0,100);
-    }catch{return [];}
+      const saved=JSON.parse(localStorage.getItem('fieldnote-v1') || '[]');
+      const rows=saved.flatMap(p=>p.legs || []).filter(l=>ids.includes(String(l.event)) && supported.has(l.market) && Number.isFinite(l.line)).map(l=>({event:String(l.event),playerId:l.playerId?String(l.playerId):null,teamId:l.teamId?String(l.teamId):null,player:String(l.player || l.teamAbbreviation || 'Total del partido').slice(0,80),market:l.market,side:l.side,line:l.line,earlyPayout17:l.earlyPayout17}));
+      const picks=[...new Map(rows.map(l=>[watchKey(l),l])).values()].slice(0,100),keys=new Set(picks.map(watchKey));
+      const parlays=saved.filter(p=>p.legs?.length && p.legs.every(l=>supported.has(l.market) && keys.has(watchKey(l)))).slice(0,40).map(p=>({id:String(p.id).slice(0,128),name:String(p.name || 'Mi parlay').slice(0,80),picks:[...new Set(p.legs.map(watchKey))]}));
+      return {picks,parlays};
+    }catch{return {picks:[],parlays:[]};}
   }
   async function sync(force=false) {
     if(!subscription || syncing) return;
-    const ids=events(), watched=picks(ids), next=JSON.stringify([ids,watched]);
+    const ids=events(), watched=watchlist(ids), next=JSON.stringify([ids,watched]);
     if(!force && signature===next) return;
     syncing=true;
-    try {await api('/subscription','POST',{subscription:subscription.toJSON(),events:ids,picks:watched}); signature=next; status.textContent='Activadas · '+ids.length+' partidos · '+watched.length+' selecciones con aviso de línea. Los avisos dependen de ESPN (revisión cada minuto en juego).';}
+    try {await api('/subscription','POST',{subscription:subscription.toJSON(),events:ids,picks:watched.picks,parlays:watched.parlays}); signature=next; status.textContent='Activadas · '+ids.length+' partidos · '+watched.picks.length+' selecciones · '+watched.parlays.length+' parlays completos sincronizados. Los avisos dependen de ESPN (revisión cada minuto en juego).';}
     finally {syncing=false;}
   }
   function buttons(on) {enable.hidden=on;test.hidden=!on;disable.hidden=!on;}

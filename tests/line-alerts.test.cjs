@@ -18,7 +18,7 @@ test('Línea superada: dato estricto, límite, under y pases completos',async()=
 test('Alarmas: una sola notificación por selección, reintento y eliminación',async()=>{
  const {Device}=await import('../worker/push.js');
  const pick={event:'401',playerId:'42',player:'Nico Collins',market:'receivingYards',side:'over',line:49.5};
- const map=new Map([['subscription',{}],['expires',Date.now()+86400000],['events',['401']],['picks',[pick]]]);
+ const map=new Map([['subscription',{}],['expires',Date.now()+86400000],['events',['401']],['picks',[pick]],['rule:401:42:receivingYards:over:49.5:',{level:75}]]);
  const storage={get:async k=>map.get(k),put:async(k,v)=>map.set(k,v),setAlarm:async()=>{}};
  const device=new Device({storage},{});let sent=0,accepted=true,value='49';
  device.send=async p=>{sent++;return accepted;};

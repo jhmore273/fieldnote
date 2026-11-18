@@ -178,6 +178,10 @@
       <section class="settings-demo" aria-labelledby="settings-demo-heading">
         <h3 class="settings-section-heading" id="settings-demo-heading">Explorar la app</h3>
         <div class="backup-actions">
+          <button type="button" id="open-install-guide">
+            <span><strong>Cómo instalar Fieldnote</strong><small>Consulta los pasos para iPhone y Android.</small></span>
+            <span data-icon="arrow"></span>
+          </button>
           <button type="button" data-demo>
             <span class="backup-icon" data-icon="football"></span>
             <span><strong>Ver el diseño con un ejemplo</strong><small>Explora el tablero con datos ficticios.</small></span>
@@ -203,6 +207,33 @@
       </div>
     </dialog>
 
+    <dialog id="install-guide" aria-labelledby="install-guide-heading">
+      <div class="modalhead">
+        <h2 id="install-guide-heading">Instala Fieldnote<span>.</span></h2>
+      </div>
+      <p class="dialog-description">Agrega Fieldnote a tu pantalla de inicio para abrirla como una app.</p>
+      <label for="install-platform">Tu teléfono</label>
+      <select id="install-platform">
+        <option value="iphone">iPhone</option>
+        <option value="android">Android</option>
+      </select>
+      <ol id="install-iphone">
+        <li>Abre Fieldnote en <strong>Safari</strong>.</li>
+        <li>Toca <strong>Compartir</strong> (el cuadrado con la flecha hacia arriba).</li>
+        <li>Elige <strong>Añadir a pantalla de inicio</strong>.</li>
+        <li>Si aparece <strong>Abrir como app web</strong>, actívalo. Toca <strong>Añadir</strong>.</li>
+      </ol>
+      <ol id="install-android" hidden>
+        <li>Abre Fieldnote en <strong>Chrome</strong>.</li>
+        <li>Toca el menú de <strong>tres puntos</strong>.</li>
+        <li>Elige <strong>Instalar app</strong> o <strong>Añadir a pantalla de inicio</strong>.</li>
+        <li>Toca <strong>Instalar</strong> o <strong>Añadir</strong> para confirmar.</li>
+      </ol>
+      <form method="dialog">
+        <button type="submit" class="secondary" autofocus>Cerrar guía</button>
+      </form>
+    </dialog>
+
     <div id="toast" role="status"></div>
     <script src="motion.js?v=2"></script>
     <script src="parlay-tools.js"></script>
@@ -210,5 +241,6 @@
     <script src="event-motion.js"></script>
     <script src="app.js?v=moneyline-compact-1"></script>
     <script src="notifications.js?v=spoiler-delay-1"></script>
+    <script src="install-guide.js"></script>
   </body>
 </html>

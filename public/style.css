@@ -1189,6 +1189,17 @@ option {
   margin-bottom: 22px;
   line-height: 1.9;
 }
+#install-guide {
+  width: 490px;
+}
+#install-guide ol {
+  margin: 18px 0 24px;
+  padding-inline-start: 24px;
+  line-height: 1.65;
+}
+#install-guide li + li {
+  margin-top: 8px;
+}
 .backup-actions {
   display: grid;
   gap: 12px;

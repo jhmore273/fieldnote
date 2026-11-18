@@ -1,0 +1,10 @@
+{
+  "name": "fieldnote-push",
+  "main": "worker/push.js",
+  "account_id": "4b9cc798095409ba9895d6dee4b5a4b5",
+  "compatibility_date": "2026-11-18",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {"APP_ORIGIN": "https://fieldnote-89i.pages.dev"},
+  "durable_objects": {"bindings": [{"name":"DEVICES", "class_name":"Device"}]},
+  "migrations": [{"tag":"v1", "new_sqlite_classes":["Device"]}]
+}

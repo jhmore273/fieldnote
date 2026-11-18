@@ -80,3 +80,13 @@ npm run build
 Las pruebas verifican estados y resúmenes de selecciones, edición sin duplicados, conservación de datos al fallar el guardado, actualización de estadísticas y decisiones de animación.
 
 El diseño funciona sin descargar fuentes externas: Tomorrow y su licencia OFL están en `public/fonts/`. Los datos deportivos requieren conexión con ESPN. La fuente de datos puede tener retrasos o no estar disponible; las condiciones de seguimiento son provisionales.
+
+### Notificaciones PWA
+
+El sitio registra `public/sw.js` sin caché de páginas para recibir Web Push. En Configuración puedes activar, probar (10 segundos) y borrar la suscripción. En iPhone se requiere abrir desde la pantalla de inicio y aceptar el permiso.
+
+El Worker `fieldnote-push` se publica aparte con `npx wrangler deploy`. Usa Durable Objects SQLite por dispositivo y alarmas; no requiere mantener una pestaña abierta. Los secretos `VAPID_PUBLIC_KEY` y `VAPID_PRIVATE_KEY` están en Cloudflare, nunca en Git. Conserva las claves: rotarlas requiere volver a suscribir los dispositivos. Los despliegues de Pages continúan desde GitHub; cambios al Worker se publican con Wrangler.
+
+Se sincronizan solo identificadores de partidos (hasta 40 por dispositivo), suscripción y estados para evitar avisos duplicados. Se eliminan al desactivar; la suscripción expira tras 90 días sin sincronizar. El servicio consulta ESPN cada minuto durante partidos y cada cinco minutos en espera: avisa dentro de los 15 minutos anteriores al comienzo y al terminar. No envía alertas de líneas, jugadores o pago anticipado. Retrasos de ESPN, conexión o ajustes del teléfono pueden retrasar la entrega. Las alarmas y almacenamiento están sujetos al plan de Cloudflare.
+
+Los parlays siguen guardados en el navegador. La suscripción no sincroniza parlays entre dispositivos. Si tienes datos en otro dominio, expórtalos e impórtalos en el dominio actual antes de activar.

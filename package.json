@@ -3,11 +3,19 @@
   "version": "1.0.0",
   "private": true,
   "description": "Tablero personal de seguimiento de parlays NFL",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "node scripts/serve.cjs",
     "start": "node scripts/serve.cjs",
     "build": "node scripts/build.cjs",
     "test": "node --test"
+  },
+  "devDependencies": {
+    "wrangler": "^4.164.0"
+  },
+  "dependencies": {
+    "web-push": "^4.0.0"
   }
 }

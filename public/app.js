@@ -321,6 +321,7 @@ function validate(a) {
 function persist() {
   try {
     localStorage.setItem(KEY, JSON.stringify(parlays));
+    window.dispatchEvent(new Event('fieldnote-saved'));
     return true;
   } catch (e) {
     toast("No se pudo guardar. Exporta un respaldo antes de cerrar.");
@@ -1945,6 +1946,7 @@ $("#delete-accept").onclick = () => {
     remaining = parlays.filter((p) => p.id !== id);
   try {
     localStorage.setItem(KEY, JSON.stringify(remaining));
+    window.dispatchEvent(new Event('fieldnote-saved'));
   } catch (e) {
     toast("No se pudo eliminar. Revisa el almacenamiento del navegador.");
     return;

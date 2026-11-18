@@ -13,6 +13,7 @@ function legVisualState(leg, result) {
 }
 
 function legReading(leg, result) {
+  if (leg.market === "moneyline") return `<div class="leg-reading"><span class="leg-selection"><small>Tu selección</small><strong>${esc(leg.teamAbbreviation || leg.player)} · ${leg.earlyPayout17 !== false ? "Money Line · anticipo +17" : "Ganar el partido"}</strong></span></div>`;
   let value = result.value, label = "Actual", target;
   if (leg.market === "spread") {
     value = result.scoreDifference;

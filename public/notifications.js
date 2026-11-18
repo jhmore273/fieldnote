@@ -4,7 +4,7 @@
   const panel = document.createElement('section');
   panel.className = 'settings-demo';
   panel.innerHTML = `<h3 class="settings-section-heading">Notificaciones</h3>
-    <p>Notificaciones según tu pick: hitos 25%, 50%, 75% y línea cumplida; aumentos de TD o intercepciones; cruces de puntos; anticipo +17; spread al final y primer anotador de touchdown. En unders, los hitos indican consumo del límite y rebasarlo no es un acierto. Un salto de varios hitos envía solo el más alto. Los aumentos simultáneos se agrupan en un aviso. Antes de cada partido recibes un aviso; al terminar todos los partidos, el resultado del parlay. Datos provisionales de ESPN. Cloudflare conserva suscripción, selecciones y agrupación de parlays por hasta 90 días desde la última sincronización.</p>
+    <p>Notificaciones según tu pick: hitos 25%, 50%, 75% y línea cumplida; aumentos de TD o intercepciones; cruces de puntos; anticipo +17; spread al final y primer anotador de touchdown. En unders, los hitos indican consumo del límite y rebasarlo no es un acierto. Un salto de varios hitos envía solo el más alto. Los aumentos simultáneos se agrupan en un aviso. Antes de cada partido recibes un aviso; al terminar todos los partidos, el resultado del parlay. Los avisos reales se envían con un minuto adicional de retraso para evitar spoilers; las pruebas conservan sus 10 segundos. Datos provisionales de ESPN. Cloudflare conserva suscripción, selecciones y agrupación de parlays por hasta 90 días desde la última sincronización.</p>
     <p id="push-status" role="status" aria-live="polite">Comprobando disponibilidad…</p>
     <div class="push-actions"><button type="button" id="push-enable" class="primary">Activar notificaciones</button>
 

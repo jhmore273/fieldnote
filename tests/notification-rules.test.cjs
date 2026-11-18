@@ -51,6 +51,7 @@ test('Ciclo real del Worker: espera partidos, cierre una vez, sin aviso genéric
  const map=new Map([['subscription',{}],['expires',Date.now()+86400000],['events',['401','402']],['picks',[a,b]],['parlays',[{id:'p',name:'Prueba',picks:[watchKey(a),watchKey(b)]}]]]);
  const storage={get:async k=>map.get(k),put:async(k,v)=>map.set(k,v),setAlarm:async()=>{}};
  const worker=new Device({storage},{}),sent=[];worker.send=async(s,p)=>{sent.push(p);return true;};
+ worker.queueNotice=async payload=>worker.send({},payload);
  let phase=0;const original=global.fetch;
  global.fetch=async url=>{
   const id=new URL(url).searchParams.get('event');

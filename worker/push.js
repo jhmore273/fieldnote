@@ -36,6 +36,35 @@ export default {
 };
 export class Device {
   constructor(ctx, env) { this.ctx=ctx; this.env=env; }
+  async queueNotice(payload,scope) {
+    const pending=await this.ctx.storage.get('pendingNotices') || [];
+    pending.push({id:crypto.randomUUID(),due:Date.now()+60000,payload,scope});
+    await this.ctx.storage.put('pendingNotices',pending);
+    return true;
+  }
+  async armAlarm(next) {
+    const pending=await this.ctx.storage.get('pendingNotices') || [];
+    const earliest=Math.min(next,...pending.map(n=>n.due));
+    await this.ctx.storage.setAlarm(Math.max(Date.now()+1,earliest));
+  }
+  async flushNotices(subscription) {
+    const pending=await this.ctx.storage.get('pendingNotices') || [];
+    for(const notice of pending){
+      if(notice.due>Date.now())continue;
+      if(!(await this.ctx.storage.get('subscription')))return;
+      const scope=notice.scope;
+      const eligible=scope.kind==='pick'
+        ? (await this.ctx.storage.get('picks') || []).some(p=>watchKey(p)===scope.key)
+        : scope.kind==='event'
+          ? (await this.ctx.storage.get('events') || []).includes(scope.id)
+          : (await this.ctx.storage.get('parlays') || []).some(p=>p.id===scope.id && p.picks.slice().sort().join('|')===scope.keys);
+      const sent=eligible?await this.send(subscription,notice.payload):true;
+      if(!(await this.ctx.storage.get('subscription')))return;
+      // Relee la cola: una sincronización puede ocurrir mientras se envía el push.
+      const current=await this.ctx.storage.get('pendingNotices') || [];
+      await this.ctx.storage.put('pendingNotices',sent?current.filter(n=>n.id!==notice.id):current.map(n=>n.id===notice.id?{...n,due:Date.now()+30000}:n));
+    }
+  }
   async send(subscription, payload) {
     try {
       const details = webpush.generateRequestDetails(subscription, JSON.stringify(payload), {
@@ -81,7 +110,7 @@ export class Device {
       await this.ctx.storage.put('testDelivery',{state:'queued',at:Date.now()});
       await this.ctx.storage.put('testCase',testCase);
       await this.ctx.storage.put('testAt', Date.now()+10000);
-      await this.ctx.storage.setAlarm(Date.now()+10000);
+      await this.armAlarm(Date.now()+10000);
       return Response.json({ok:true});
     }
     if (path !== '/subscription') return Response.json({error:'Ruta no disponible'}, {status:404});
@@ -99,13 +128,15 @@ export class Device {
     if(!Array.isArray(parlays) || parlays.length>40 || parlays.some(p=>!p || typeof p.id!=='string' || p.id.length>128 || typeof p.name!=='string' || p.name.length>80 || !Array.isArray(p.picks) || !p.picks.length || p.picks.length>100 || p.picks.some(k=>!keys.has(k))))return Response.json({error:'Parlays inválidos'}, {status:400});
     await this.ctx.storage.put({subscription:body.subscription,events,picks,parlays,expires:Date.now()+90*86400000});
     const testAt=await this.ctx.storage.get('testAt');
-    await this.ctx.storage.setAlarm(testAt || Date.now()+15000);
+    await this.armAlarm(testAt || Date.now()+15000);
     return Response.json({ok:true});
   }
   async alarm() {
     const s=await this.ctx.storage.get('subscription');
     if (!s) return;
     if (Date.now() > await this.ctx.storage.get('expires')) { await this.ctx.storage.deleteAll(); return; }
+    await this.flushNotices(s);
+    if(!(await this.ctx.storage.get('subscription')))return;
     const testAt = await this.ctx.storage.get('testAt');
     if (testAt && testAt <= Date.now()) {
       await this.ctx.storage.delete('testAt');
@@ -138,7 +169,7 @@ export class Device {
           const update=ruleUpdate(data,pick,old);
           await this.ctx.storage.put('result:'+key,update.result);
           const eligible=current.state==='in' || (current.completed && previous && (!previous.completed || previous.retry));
-          if(!update.notification || !eligible || await this.send(s,update.notification))await this.ctx.storage.put('rule:'+key,update.state);
+          if(!update.notification || !eligible || await this.queueNotice(update.notification,{kind:'pick',key}))await this.ctx.storage.put('rule:'+key,update.state);
           else {
             retry=true;
             await this.ctx.storage.put('rule:'+key,{...old,maxLead:update.state.maxLead,earlyReached:update.state.earlyReached});
@@ -151,7 +182,7 @@ export class Device {
         const key='sent:'+id+':'+kind;
         if(kind==='start' && !(await this.ctx.storage.get(key))) {
           const body=kind==='start' ? name+' comienza en menos de 15 minutos.' : name+' terminó. Revisa tus selecciones; los resultados son provisionales.';
-          if(await this.send(s,{title:kind==='start'?'Tu partido está por comenzar':'Partido terminado',body,tag:id+'-'+kind,url:'/?event='+id}))
+          if(await this.queueNotice({title:kind==='start'?'Tu partido está por comenzar':'Partido terminado',body,tag:id+'-'+kind,url:'/?event='+id},{kind:'event',id}))
             await this.ctx.storage.put(key,true);
         }
         await this.ctx.storage.put('event:'+id,current);
@@ -166,13 +197,13 @@ export class Device {
       if(results.some(r=>!r?.done))await this.ctx.storage.put('active:'+key,true);
       const text=parlayResult(results);
       if(text && await this.ctx.storage.get('active:'+key) && !(await this.ctx.storage.get('parlay-sent:'+key))) {
-        if(await this.send(s,{title:'Parlay terminado · '+parlay.name,body:text+' Resultado provisional; confirma la liquidación.',tag:'parlay:'+key,url:'/'}))await this.ctx.storage.put('parlay-sent:'+key,true);
+        if(await this.queueNotice({title:'Parlay terminado · '+parlay.name,body:text+' Resultado provisional; confirma la liquidación.',tag:'parlay:'+key,url:'/'},{kind:'parlay',id:parlay.id,keys:parlay.picks.slice().sort().join('|')}))await this.ctx.storage.put('parlay-sent:'+key,true);
         if(!(await this.ctx.storage.get('subscription')))return;
       }
     }
     if(await this.ctx.storage.get('subscription')) {
       const pendingTest=await this.ctx.storage.get('testAt');
-      await this.ctx.storage.setAlarm(pendingTest || Date.now()+(active?60000:5*60000));
+      await this.armAlarm(pendingTest || Date.now()+(active?60000:5*60000));
     }
   }
 }

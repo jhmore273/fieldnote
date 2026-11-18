@@ -100,3 +100,7 @@ Por consulta se agrupan los aumentos simultáneos y se envía solo el hito más 
 ### Pruebas por pick en Configuración
 
 El selector usa `public/notification-test-cases.json`, compartido por cliente y Worker. Contiene ejemplos para los 15 mercados y variantes de progreso, under, primer anotador y cierre de parlay. Se programa un solo aviso a los 10 segundos, con límite de una prueba cada 30 segundos por dispositivo. El servidor solo admite identificadores del catálogo; no acepta mensajes arbitrarios. Todos los avisos están marcados `[PRUEBA]` y no escriben en los estados de progreso, resultados o deduplicación de picks reales. El estado de entrega de pruebas se registra por separado para que un aviso real concurrente no dé una falsa confirmación.
+
+### Retraso para evitar spoilers
+
+Todos los avisos reales pasan por una cola persistente del dispositivo con vencimiento mínimo de 60 segundos desde que se detectan. Incluye avances, anotaciones, Money Line, spread, inicio de partido y resultado del parlay. El retraso se suma al intervalo de consulta de ESPN y a los tiempos de entrega del sistema. Las pruebas simuladas mantienen los 10 segundos. La alarma toma el vencimiento más cercano entre cola, pruebas y próxima consulta. Los fallos se reintentan a los 30 segundos sin crear otro aviso; eliminar o editar el pick, eliminar el parlay o desactivar notificaciones invalida los avisos pendientes correspondientes.

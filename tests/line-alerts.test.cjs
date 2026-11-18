@@ -24,6 +24,7 @@ test('Alarmas: una sola notificación por selección, reintento y eliminación',
  device.send=async p=>{sent++;return accepted;};
  // send recibe la suscripción y el contenido; comprobamos también el mensaje.
  device.send=async(s,p)=>{assert.match(p.title,/Línea superada/);sent++;return accepted;};
+ device.queueNotice=async payload=>device.send({},payload);
  const original=global.fetch;
  global.fetch=async()=>Response.json({header:{competitions:[{date:new Date().toISOString(),status:{type:{state:'in',completed:false}},competitors:[]}]},boxscore:{players:[{statistics:[{name:'receiving',keys:['receivingYards'],athletes:[{athlete:{id:'42'},stats:[value]}]}]}]}});
  try{

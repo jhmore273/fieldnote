@@ -1578,12 +1578,29 @@ function render() {
   );
   animateRenderedEvents(motionBefore);
 }
-function enterDemo() {
+function renderDemo() {
   demoMode = true;
   filter = "all";
   expandedParlays.add(demoParlays[0].id);
   setFilterButtons();
   render();
+}
+function previewDemo() {
+  const previousMode = demoMode,
+    previousFilter = filter,
+    firstId = demoParlays[0].id,
+    wasExpanded = expandedParlays.has(firstId);
+  renderDemo();
+  return () => {
+    demoMode = previousMode;
+    filter = previousFilter;
+    if (!wasExpanded) expandedParlays.delete(firstId);
+    setFilterButtons();
+    render();
+  };
+}
+function enterDemo() {
+  renderDemo();
   $("#backup-dialog").close();
   $("#demo-banner").focus({ preventScroll: true });
   $("#demo-banner").scrollIntoView({ block: "start" });

@@ -19,6 +19,7 @@
     <link rel="apple-touch-icon" href="icons/slate-apple-180.png" sizes="180x180" />
     <meta name="apple-mobile-web-app-title" content="Fieldnote" />
     <link rel="stylesheet" href="notifications.css?v=live-alerts-1" />
+    <link rel="stylesheet" href="app-tour.css" />
   </head>
   <body>
     <!-- La navegación lateral se convierte en una barra inferior en celular. -->
@@ -179,7 +180,7 @@
         <h3 class="settings-section-heading" id="settings-demo-heading">Explorar la app</h3>
         <div class="backup-actions">
           <button type="button" id="open-app-guide">
-            <span><strong>Cómo usar Fieldnote</strong><small>Aprende a guardar y seguir tus parlays.</small></span>
+            <span><strong>Cómo usar Fieldnote</strong><small>Inicia el recorrido interactivo.</small></span>
             <span data-icon="arrow"></span>
           </button>
           <button type="button" id="open-install-guide">
@@ -211,19 +212,18 @@
       </div>
     </dialog>
 
-    <dialog id="app-guide" class="guide-dialog" aria-labelledby="app-guide-heading">
-      <div class="modalhead">
-        <h2 id="app-guide-heading">Cómo usar Fieldnote<span>.</span></h2>
+    <dialog id="app-tour" aria-labelledby="tour-heading" aria-describedby="tour-progress tour-description">
+      <div class="tour-highlight" aria-hidden="true"></div>
+      <div class="tour-panel">
+        <p id="tour-progress" class="tour-progress"></p>
+        <h2 id="tour-heading" tabindex="-1"></h2>
+        <p id="tour-description"></p>
+        <div class="tour-actions">
+          <button type="button" id="tour-close" class="secondary">Salir</button>
+          <button type="button" id="tour-back" class="secondary">Atrás</button>
+          <button type="button" id="tour-next" class="primary">Siguiente</button>
+        </div>
       </div>
-      <ol>
-        <li><strong>Crea un parlay.</strong> Toca <strong>Nuevo parlay</strong>, dale un nombre y elige el partido, el tipo de apuesta y los datos de cada selección. Agrega las que necesites, revisa y guarda.</li>
-        <li><strong>Sigue el avance.</strong> Abre la tarjeta del parlay para ver el marcador y cómo va cada selección con datos de ESPN. Usa los filtros para ver los parlays en juego, pendientes o terminados.</li>
-        <li><strong>Recibe avisos.</strong> En <strong>Configuración → Notificaciones</strong>, activa los avisos de tus selecciones. En iPhone, abre Fieldnote desde su icono en la pantalla de inicio.</li>
-      </ol>
-      <p class="dialog-description">Para practicar con datos ficticios, ve a <strong>Configuración → Ver el diseño con un ejemplo</strong>.</p>
-      <form method="dialog">
-        <button type="submit" class="primary" autofocus>Entendido</button>
-      </form>
     </dialog>
     <dialog id="install-guide" class="guide-dialog" aria-labelledby="install-guide-heading">
       <div class="modalhead">
@@ -257,8 +257,9 @@
     <script src="parlay-tools.js"></script>
     <script src="design-polish.js?v=moneyline-compact-1"></script>
     <script src="event-motion.js"></script>
-    <script src="app.js?v=demo-preview-1"></script>
+    <script src="app.js?v=app-tour-1"></script>
     <script src="notifications.js?v=live-alerts-1"></script>
-    <script src="install-guide.js?v=app-guide-1"></script>
+    <script src="app-tour.js"></script>
+    <script src="install-guide.js?v=app-tour-1"></script>
   </body>
 </html>

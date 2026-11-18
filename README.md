@@ -2,6 +2,10 @@
 
 Tablero personal para seguir parlays NFL con estadísticas de ESPN. Incluye edición de parlays, resumen de selecciones, respaldos, tipografía Tomorrow y animaciones de cambios de datos y estados.
 
+**Sitio publicado:** https://fieldnote-89i.pages.dev/
+
+**Repositorio privado:** https://github.com/jhmore273/fieldnote
+
 ## Trabajar desde otra computadora
 
 Instala Git y Node.js 22 o posterior e inicia sesión en tu cuenta de GitHub para acceder al repositorio privado.
@@ -37,7 +41,9 @@ git push
 
 La rama principal es `main`. Si hay cambios locales sin guardar, guárdalos antes de descargar los de otra computadora.
 
-## Crear el nuevo proyecto de Cloudflare Pages
+## Publicación automática en Cloudflare Pages
+
+El proyecto de Pages `fieldnote` ya está conectado a este repositorio y publica la rama `main` en https://fieldnote-89i.pages.dev/. Para reconstruir esa conexión en otra cuenta, utiliza estos pasos:
 
 1. En Cloudflare, abre Workers & Pages y crea una aplicación de **Pages** usando un repositorio de GitHub.
 2. Conecta la cuenta `jhmore273` y autoriza el acceso al repositorio privado `fieldnote`.

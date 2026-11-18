@@ -1,0 +1,37 @@
+@font-face {
+  font-family: "Tomorrow";
+  src: url("fonts/Tomorrow-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Tomorrow";
+  src: url("fonts/Tomorrow-Medium.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Tomorrow";
+  src: url("fonts/Tomorrow-SemiBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Tomorrow";
+  src: url("fonts/Tomorrow-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+:root, :root[data-font] {
+  --display: "Tomorrow", sans-serif;
+  --sans: "Tomorrow", sans-serif;
+  --mono: "Tomorrow", sans-serif;
+  --specimen: "Tomorrow", sans-serif;
+}
+html, body, body *, body *::before, body *::after {
+  font-family: "Tomorrow", sans-serif;
+}

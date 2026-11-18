@@ -1,0 +1,125 @@
+/* Ajuste local de lectura y jerarquía. La cuadrícula de escritorio se conserva. */
+:root {
+  --status-live: #f1ba8d;
+  --status-favorable: #a7d6bd;
+  --status-won: #64d29c;
+  --status-lost: #f1a49e;
+}
+.board-heading h1 { font-size: 24px; letter-spacing: -.5px; }
+.cardtop > .parlaytoggle { min-height: 0; padding: 18px 42px 16px 18px; }
+.parlayname { font-size: 20px; line-height: 1.35; margin: 9px 0 0; }
+.card-kicker, .parlay-status, .card-progress-heading small { font-size: 11px; }
+.parlaymeta { position: absolute; top: 17px; right: 42px; gap: 8px; }
+.togglecaption { display: none; }
+.parlay-chevron { position: absolute; right: 16px; top: 22px; color: var(--t-muted); transform: rotate(90deg); transition: transform 180ms ease; }
+.parlay-chevron svg { width: 17px; height: 17px; }
+.parlaytoggle[aria-expanded="true"] .parlay-chevron { transform: rotate(270deg); }
+.card-progress { margin-top: 12px; padding-top: 11px; gap: 8px; }
+.card-progress-heading strong { font-size: 14px; }
+.card-progress-detail { font-size: 12px; line-height: 1.5; }
+.card-progress-track { height: 6px; }
+.card-progress-track .summary-favorable { background: var(--status-favorable); }
+.card-progress-track .summary-won { background: var(--status-won); }
+.card-progress-track .summary-lost { background: var(--status-lost); }
+.card-progress-track .summary-live { background: var(--status-live); }
+.card-actions { padding-bottom: 12px; }
+.card-actions .delete, .card-actions .edit-parlay { min-height: 44px; font-size: 12px; padding-inline: 12px; }
+.toolbar .filters { border-color: var(--t-line); box-shadow: inset 0 1px 3px #0003; }
+.toolbar .filters button { min-height: 44px; font-size: 12px; }
+.toolbar .filters button:not(.active), .mobile-nav button:not(.selected) { border-color: var(--t-line); box-shadow: inset 0 1px 0 #ffffff0b, 0 2px 0 #0003; }
+.card { border-color: var(--t-line); box-shadow: inset 0 1px 0 #ffffff0d, 0 3px 0 #11171d, 0 9px 18px #0003; }
+.cardtop { background: linear-gradient(135deg, #34434f, #2b3742); box-shadow: inset 0 1px 0 #ffffff0b; }
+.eventgroup, .leg { box-shadow: none; }
+.eventgroup { border-color: var(--t-line); }
+.eventheading, .moneyline-scoreboard { border-color: var(--t-line); box-shadow: inset 0 1px 0 #ffffff0b, 0 2px 0 #0002; }
+.leg { padding: 18px 14px; }
+.leg-info { flex-wrap: wrap; gap: 4px 7px; }
+.leg-info .player { font-size: 17px; line-height: 1.4; }
+.leg-info .market { font-size: 13px; white-space: normal; line-height: 1.5; font-weight: 400; color: var(--t-muted); }
+.leg-divider { color: var(--t-faint); }
+.leg-reading { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-top: 12px; }
+.leg-reading > span { display: grid; gap: 3px; }
+.leg-reading small { font-size: 11px; color: var(--t-muted); }
+.leg-reading strong { font-size: 20px; line-height: 1.2; font-weight: 600; font-variant-numeric: tabular-nums; }
+.leg-reading .leg-selection { text-align: right; }
+.leg-selection strong { font-size: 13px; font-weight: 500; line-height: 1.4; }
+.leg-status { gap: 8px; align-items: flex-start; }
+.leg-status .pill, .leg-status .remaining { font-size: 12px; line-height: 1.5; }
+.leg-status .pill { padding: 3px 7px; }
+.leg-status .remaining { max-width: 60%; }
+.match-time, .spread-stat-label, .spread-cover-rule, .moneyline-rule, .stale-note { font-size: 12px; line-height: 1.5; }
+.prop-progress.pace-pending, .prop-progress.pace-unknown, .prop-progress.pace-push {
+  --pace-bg: #293642; --pace-border: #91a6b4; --pace-fill: #8197a6; --pace-text: #d6e0e5;
+}
+.prop-progress.pace-live { --pace-bg: #493529; --pace-border: #d5a577; --pace-fill: #d5a577; --pace-text: #f5d4b6; }
+.prop-progress.pace-favorable { --pace-bg: #2b4138; --pace-border: #97c5ab; --pace-fill: #97c5ab; --pace-text: #d2ebdd; }
+.prop-progress.pace-won { --pace-bg: #173e2d; --pace-border: #64d29c; --pace-fill: #64d29c; --pace-text: #c0f1d8; }
+.prop-progress.pace-lost { --pace-bg: #472b30; --pace-border: #e0918b; --pace-fill: #e0918b; --pace-text: #ffd1ca; }
+.leg[data-state="live"] :is(.pill,.remaining) { color: var(--status-live); }
+.leg[data-state="live"] .pill { background: #493529; border-color: #9d7857; }
+.leg[data-state="favorable"] :is(.pill,.remaining) { color: var(--status-favorable); }
+.leg[data-state="favorable"] .pill { background: #2b4138; border-color: #678d78; }
+.leg[data-state="won"] :is(.pill,.remaining) { color: var(--status-won); }
+.leg[data-state="lost"] :is(.pill,.remaining) { color: var(--status-lost); }
+.leg:is([data-state="pending"],[data-state="unknown"],[data-state="push"]) :is(.pill,.remaining) { color: var(--t-muted); }
+.leg:is([data-state="pending"],[data-state="unknown"],[data-state="push"]) .pill { background: #293642; border-color: var(--t-line); }
+.connection { font-size: 12px; line-height: 1.5; gap: 10px; padding: 12px 0 16px; }
+#connection { color: var(--t-muted); }
+#connection::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #99b6a5; margin-right: 7px; vertical-align: middle; }
+.connection[data-state="loading"] #connection::before { background: var(--t-accent); }
+.connection:is([data-state="error"],[data-state="partial"]) { background: #f1ac780d; border: 1px solid #aa805e; border-radius: 8px; padding: 9px 11px; margin: 12px 0 16px; }
+.connection:is([data-state="error"],[data-state="partial"]) #connection { color: #f3ccaa; }
+.connection:is([data-state="error"],[data-state="partial"]) #connection::before { background: var(--t-accent); }
+.connection[data-state="demo"] #connection::before { background: var(--t-faint); }
+.connection .auto-refresh { font-size: 11px; }
+.connection #refresh { min-width: 44px; min-height: 44px; padding: 8px; border: 1px solid var(--t-line); border-radius: 7px; font-size: 12px; }
+.connection #refresh > span:last-child { display: inline; }
+.page-footnote p, .page-footer, .storage-note, .dialog-description { font-size: 12px; line-height: 1.7; }
+.demo-banner { font-size: 11px; line-height: 1.6; }
+.demo-banner button { min-height: 44px; font-size: 11px; }
+.modalhead .eyebrow, .eyebrow { font-size: 11px; }
+dialog .modalhead { padding-bottom: 16px; }
+.draft { padding: 14px; border-color: var(--t-line); box-shadow: none; background: var(--t-field); }
+.drafttop { display: flex; gap: 8px; align-items: center; }
+.drafttop strong { margin-right: auto; font-size: 12px; }
+.drafttop button { min-height: 44px; font-size: 12px; }
+.draft-summary { display: none; font-size: 13px; color: var(--t-muted); line-height: 1.7; margin: 12px 0 0; }
+.draft.is-collapsed > :not(.drafttop):not(.draft-summary) { display: none !important; }
+.draft.is-collapsed .draft-summary { display: block; }
+.draft:not(.is-collapsed) .draft-expand { display: none; }
+.draft .spread-config { border: 0; box-shadow: none; background: none; padding: 10px 0 0; }
+.draft .spread-team-button { border-color: var(--t-line); box-shadow: inset 0 1px 0 #ffffff12, 0 2px 0 #0002; }
+.draft .games-date { padding-bottom: 9px; margin-bottom: 10px; }
+.draft .games-date > span { font-size: 11px; }
+.draft .games-date-value { font-size: 13px; line-height: 1.5; }
+.draft .game-date-actions { margin-top: 10px; }
+.draft .next-game-date, .draft .current-game-date { min-height: 44px; font-size: 12px; box-shadow: none; }
+.draft label, .fieldlabel { font-size: 13px; }
+.draftstatus, .hint, .calendar-status, .spread-hint, .early-payout-option, .otherplayers { font-size: 12px; line-height: 1.6; }
+.review-leg small { font-size: 12px; line-height: 1.5; white-space: normal; }
+.backup-actions small { font-size: 12px; line-height: 1.5; }
+.backup-actions strong { font-size: 14px; }
+.settings-section-heading { font-size: 15px; }
+@media (max-width: 760px) {
+  .toolbar .filters { gap: 4px; padding: 5px; }
+  .toolbar .filters button { padding: 8px 3px; font-size: 11px; gap: 4px; }
+  .connection { align-items: center; flex-wrap: nowrap; }
+  .connection #connection { flex: 1; min-width: 0; }
+  .connection .auto-refresh { display: none; }
+  .connection #refresh > span:last-child { display: none; }
+  .connection .connection-actions { flex: none; }
+  .mobile-nav { border-color: #6b7d89; box-shadow: inset 0 1px 0 #ffffff20, 0 5px 0 #10161c, 0 12px 24px #0007; }
+  .mobile-nav button, .mobile-nav a { font-size: 11px; }
+  .board-heading .primary { min-height: 44px; font-size: 11px; }
+  .modalhead h2 { font-size: 25px; }
+  #editor { width: calc(100% - 16px); max-height: calc(100dvh - 24px); padding: 18px; }
+  .editor-steps { font-size: 12px; }
+  .editor-actions { padding: 12px 0 max(6px, env(safe-area-inset-bottom)); }
+  .editor-actions > button { min-height: 46px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { .parlay-chevron { transition: none; } }
+@media (max-width: 360px) {
+  .board-heading h1 { font-size: 20px; }
+  .board-heading .primary { font-size: 10px; padding-inline: 9px; }
+  .toolbar .filters button { font-size: 10px; }
+}

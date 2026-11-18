@@ -1,0 +1,13 @@
+{
+  "name": "fieldnote",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tablero personal de seguimiento de parlays NFL",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "node scripts/serve.cjs",
+    "start": "node scripts/serve.cjs",
+    "build": "node scripts/build.cjs",
+    "test": "node --test"
+  }
+}

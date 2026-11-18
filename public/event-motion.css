@@ -1,0 +1,32 @@
+/* El movimiento de seguimiento se activa solo al cambiar el dato o el estado. */
+#cards .leg .progress-fill::after, #cards .leg .progress-badge::before { display: none; animation: none; }
+.parlay-status.live::before { animation: none; box-shadow: none; }
+.leg .progress-fill, .leg .progress-badge { animation: none; }
+.leg-reading { border-radius: 5px; }
+.leg-reading > span:first-child { position: relative; }
+.motion-old-number { position: absolute; left: 0; bottom: 0; font-size: 20px; line-height: 1.2; font-weight: 600; pointer-events: none; }
+.filters { position: relative; isolation: isolate; }
+.toolbar .filters button { position: relative; z-index: 1; }
+.toolbar .filters button.active { background: transparent; border-color: transparent; box-shadow: none; }
+.filter-highlight {
+  position: absolute; z-index: 0; pointer-events: none; border: 1px solid var(--t-accent);
+  border-radius: 7px; box-sizing: border-box; transform-origin: left center;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--t-accent) 87%, white), var(--t-accent));
+  box-shadow: inset 0 1px 0 #ffffff4a, 0 3px 0 var(--depth-gold-base), 0 5px 9px var(--t-shadow);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .leg.motion-data-changed .progress-fill { animation: progress-fill-move 400ms cubic-bezier(.2,.7,.3,1) both; }
+  .leg.motion-data-changed .progress-badge { animation: progress-badge-move 400ms cubic-bezier(.2,.7,.3,1) both; }
+  .leg.motion-data-changed .spread-progress .progress-fill { animation-name: spread-fill-move; }
+  .leg.motion-state-changed { position: relative; }
+  .leg.motion-state-changed::after {
+    content: ""; position: absolute; inset: 2px; pointer-events: none; border-radius: 7px;
+    border: 1px solid var(--t-accent); opacity: 0; animation: state-once 460ms ease-out;
+  }
+  .leg.motion-state-changed:is([data-state="favorable"],[data-state="won"])::after { border-color: var(--status-favorable); }
+  .leg.motion-state-changed[data-state="lost"]::after { border-color: var(--status-lost); }
+  .leg.motion-state-changed:is([data-state="pending"],[data-state="unknown"],[data-state="push"])::after { border-color: var(--t-muted); }
+  .draft { animation-duration: 220ms; }
+  .editor-steps > span { transition: color 180ms, background-color 180ms; }
+}
+@keyframes state-once { 0% { opacity: 0; } 30% { opacity: .6; } 100% { opacity: 0; } }

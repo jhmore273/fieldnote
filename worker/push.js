@@ -1,5 +1,4 @@
 import * as webpush from 'web-push';
-import testCases from '../public/notification-test-cases.json' with {type:'json'};
 import {validWatch,watchKey,ruleUpdate,parlayResult} from './notification-rules.js';
 
 export function validSubscription(s) {
@@ -87,32 +86,11 @@ export class Device {
   }
   async fetch(request) {
     const path = new URL(request.url).pathname;
-    if(request.method === 'GET' && path === '/test-status')
-      return Response.json({delivery:await this.ctx.storage.get('testDelivery') || await this.ctx.storage.get('delivery') || null,pending:!!(await this.ctx.storage.get('testAt'))});
     if (request.method === 'DELETE' && path === '/subscription') {
       await this.ctx.storage.deleteAll(); await this.ctx.storage.deleteAlarm();
       return Response.json({ok:true});
     }
     if (request.method !== 'POST') return Response.json({error:'Ruta no disponible'}, {status:404});
-    if (path === '/test') {
-      const s = await this.ctx.storage.get('subscription');
-      if (!s) return Response.json({error:'Activa las notificaciones primero'}, {status:400});
-      let testCase='general';
-      try {
-        const raw=await request.text();if(raw.length>256)throw Error();
-        if(raw)testCase=JSON.parse(raw).type || 'general';
-      }catch{return Response.json({error:'Prueba inválida'}, {status:400});}
-      if(!testCases.some(t=>t.id===testCase))return Response.json({error:'Tipo de prueba no disponible'}, {status:400});
-      const last = await this.ctx.storage.get('lastTest') || 0;
-      if (Date.now()-last < 30000) return Response.json({error:'Espera 30 segundos entre pruebas'}, {status:429});
-      await this.ctx.storage.put('lastTest', Date.now());
-      await this.ctx.storage.put('delivery',{state:'queued',at:Date.now()});
-      await this.ctx.storage.put('testDelivery',{state:'queued',at:Date.now()});
-      await this.ctx.storage.put('testCase',testCase);
-      await this.ctx.storage.put('testAt', Date.now()+10000);
-      await this.armAlarm(Date.now()+10000);
-      return Response.json({ok:true});
-    }
     if (path !== '/subscription') return Response.json({error:'Ruta no disponible'}, {status:404});
     let body;
     try { const raw=await request.text(); if(raw.length>64000) throw Error(); body=JSON.parse(raw); }
@@ -127,8 +105,7 @@ export class Device {
     const parlays=body.parlays || [];
     if(!Array.isArray(parlays) || parlays.length>40 || parlays.some(p=>!p || typeof p.id!=='string' || p.id.length>128 || typeof p.name!=='string' || p.name.length>80 || !Array.isArray(p.picks) || !p.picks.length || p.picks.length>100 || p.picks.some(k=>!keys.has(k))))return Response.json({error:'Parlays inválidos'}, {status:400});
     await this.ctx.storage.put({subscription:body.subscription,events,picks,parlays,expires:Date.now()+90*86400000});
-    const testAt=await this.ctx.storage.get('testAt');
-    await this.armAlarm(testAt || Date.now()+15000);
+    await this.armAlarm(Date.now()+15000);
     return Response.json({ok:true});
   }
   async alarm() {
@@ -137,14 +114,6 @@ export class Device {
     if (Date.now() > await this.ctx.storage.get('expires')) { await this.ctx.storage.deleteAll(); return; }
     await this.flushNotices(s);
     if(!(await this.ctx.storage.get('subscription')))return;
-    const testAt = await this.ctx.storage.get('testAt');
-    if (testAt && testAt <= Date.now()) {
-      await this.ctx.storage.delete('testAt');
-      const id=await this.ctx.storage.get('testCase') || 'general';
-      const example=testCases.find(t=>t.id===id) || testCases[0];
-      const ok=await this.send(s,{title:'[PRUEBA] '+example.title,body:example.body+' Simulación: no modifica tus picks.',tag:'fieldnote-test',url:'/'});
-      await this.ctx.storage.put('testDelivery',{state:ok?'accepted':'failed',at:Date.now(),code:(await this.ctx.storage.get('delivery'))?.code || null});
-    }
     const events=await this.ctx.storage.get('events') || [];
     const picks=await this.ctx.storage.get('picks') || [];
     let active=false;
@@ -202,8 +171,7 @@ export class Device {
       }
     }
     if(await this.ctx.storage.get('subscription')) {
-      const pendingTest=await this.ctx.storage.get('testAt');
-      await this.armAlarm(pendingTest || Date.now()+(active?60000:5*60000));
+      await this.armAlarm(Date.now()+(active?60000:5*60000));
     }
   }
 }

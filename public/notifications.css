@@ -2,13 +2,3 @@
 .push-actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
 .push-actions button{font:inherit;font-size:12px;padding:12px 16px;border-radius:12px}
 .push-actions [hidden]{display:none}
-.push-testing{border-top:1px solid #78899744;margin-top:20px;padding-top:18px}
-.push-testing h4{font-size:15px;margin:0 0 10px;color:#e0c28b}
-.push-testing>p,.push-test-preview p{font-size:13px;line-height:1.65;color:#b5bec7;margin:8px 0 14px}
-.push-testing>label{font-size:13px;display:block;margin:14px 0 8px}
-.push-testing>select{width:100%;max-width:100%;font:inherit;font-size:14px;padding:12px;border:1px solid #647181;border-radius:10px;color:#e4e9ee;background:#18212a}
-.push-test-preview{border:1px solid #c5a36a44;background:#10182066;border-radius:10px;padding:14px;margin-top:12px;overflow-wrap:anywhere}
-.push-test-preview strong{font-size:13px;color:#e7cb98}
-.push-test-preview p{margin:8px 0 0}
-.push-testing small{font-size:12px;line-height:1.6;color:#9cabb8}
-.push-testing [hidden]{display:none}

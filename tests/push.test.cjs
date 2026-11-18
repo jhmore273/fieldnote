@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {createECDH,randomBytes}=require('node:crypto');
 const webpush=require('web-push');
 const ece=require('http_ece');
-test('Push: permisos, cifrado, prueba diferida, baja y transiciones',async()=>{
+test('Push: permisos, cifrado, aviso diferido, baja y transiciones',async()=>{
  const {default:worker,Device,alertKind,validSubscription}=await import('../worker/push.js');
  const keys=webpush.generateVAPIDKeys(),receiver=createECDH('prime256v1');receiver.generateKeys();
  const auth=randomBytes(16).toString('base64url');
@@ -21,9 +21,16 @@ test('Push: permisos, cifrado, prueba diferida, baja y transiciones',async()=>{
  const device=new Device({storage},env);
  const req=(path,body)=>new Request('https://push.example'+path,{method:'POST',body:JSON.stringify(body)});
  assert.equal((await device.fetch(req('/subscription',{subscription:sub,events:['401']}))).status,200);
- await device.fetch(req('/test',{}));assert.ok(alarm>Date.now());
- assert.equal((await device.fetch(req('/test',{}))).status,429);
- map.set('testAt',Date.now()-1);map.set('events',[]);
+ assert.ok(alarm>Date.now());
+ assert.equal((await device.fetch(req('/test',{}))).status,404);
+ assert.equal((await device.fetch(new Request('https://push.example/test-status'))).status,404);
+ // Una prueba encolada por una versión anterior no debe enviarse.
+ map.set('testAt',Date.now()-1);
+ map.set('events',[]);
+ await device.queueNotice({title:'Tu partido está por comenzar',tag:'401-start'},{kind:'event',id:'401'});
+ map.get('pendingNotices')[0].due=Date.now()-1;
+ map.set('events',['401']);
+ map.set('event:401',{completed:true});
  const original=global.fetch;let payload;
  global.fetch=async(url,options)=>{
    assert.equal(options.redirect,'manual','Workers solo admite follow o manual');
@@ -33,7 +40,7 @@ test('Push: permisos, cifrado, prueba diferida, baja y transiciones',async()=>{
    return new Response(null,{status:201});
  };
  try{await device.alarm();}finally{global.fetch=original;}
- assert.equal(payload.tag,'fieldnote-test');assert.equal(map.has('testAt'),false);
+ assert.equal(payload.tag,'401-start');assert.deepEqual(map.get('pendingNotices'),[]);
  assert.equal(map.get('delivery').state,'accepted');
  await device.fetch(new Request('https://push.example/subscription',{method:'DELETE'}));assert.equal(map.size,0);assert.equal(alarm,null);
  assert.equal((await worker.fetch(new Request('https://push.example/config'),env)).status,403);

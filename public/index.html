@@ -9,7 +9,7 @@
       content="Tu tablero personal para seguir cada leg de tus parlays NFL."
     />
     <title>Fieldnote · NFL</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css?v=app-guide-1" />
     <link rel="stylesheet" href="motion.css?v=parlays-1" />
     <link rel="stylesheet" href="typography.css" />
     <link rel="stylesheet" href="design-polish.css" />
@@ -18,7 +18,7 @@
     <link rel="icon" href="icons/slate-favicon-64.png" sizes="64x64" type="image/png" />
     <link rel="apple-touch-icon" href="icons/slate-apple-180.png" sizes="180x180" />
     <meta name="apple-mobile-web-app-title" content="Fieldnote" />
-    <link rel="stylesheet" href="notifications.css?v=pick-tests-1" />
+    <link rel="stylesheet" href="notifications.css?v=live-alerts-1" />
   </head>
   <body>
     <!-- La navegación lateral se convierte en una barra inferior en celular. -->
@@ -178,6 +178,10 @@
       <section class="settings-demo" aria-labelledby="settings-demo-heading">
         <h3 class="settings-section-heading" id="settings-demo-heading">Explorar la app</h3>
         <div class="backup-actions">
+          <button type="button" id="open-app-guide">
+            <span><strong>Cómo usar Fieldnote</strong><small>Aprende a guardar y seguir tus parlays.</small></span>
+            <span data-icon="arrow"></span>
+          </button>
           <button type="button" id="open-install-guide">
             <span><strong>Cómo instalar Fieldnote</strong><small>Consulta los pasos para iPhone y Android.</small></span>
             <span data-icon="arrow"></span>
@@ -207,7 +211,21 @@
       </div>
     </dialog>
 
-    <dialog id="install-guide" aria-labelledby="install-guide-heading">
+    <dialog id="app-guide" class="guide-dialog" aria-labelledby="app-guide-heading">
+      <div class="modalhead">
+        <h2 id="app-guide-heading">Cómo usar Fieldnote<span>.</span></h2>
+      </div>
+      <ol>
+        <li><strong>Crea un parlay.</strong> Toca <strong>Nuevo parlay</strong>, dale un nombre y elige el partido, el tipo de apuesta y los datos de cada selección. Agrega las que necesites, revisa y guarda.</li>
+        <li><strong>Sigue el avance.</strong> Abre la tarjeta del parlay para ver el marcador y cómo va cada selección con datos de ESPN. Usa los filtros para ver los parlays en juego, pendientes o terminados.</li>
+        <li><strong>Recibe avisos.</strong> En <strong>Configuración → Notificaciones</strong>, activa los avisos de tus selecciones. En iPhone, abre Fieldnote desde su icono en la pantalla de inicio.</li>
+      </ol>
+      <p class="dialog-description">Para practicar con datos ficticios, ve a <strong>Configuración → Ver el diseño con un ejemplo</strong>.</p>
+      <form method="dialog">
+        <button type="submit" class="primary" autofocus>Entendido</button>
+      </form>
+    </dialog>
+    <dialog id="install-guide" class="guide-dialog" aria-labelledby="install-guide-heading">
       <div class="modalhead">
         <h2 id="install-guide-heading">Instala Fieldnote<span>.</span></h2>
       </div>
@@ -240,7 +258,7 @@
     <script src="design-polish.js?v=moneyline-compact-1"></script>
     <script src="event-motion.js"></script>
     <script src="app.js?v=demo-preview-1"></script>
-    <script src="notifications.js?v=spoiler-delay-1"></script>
-    <script src="install-guide.js"></script>
+    <script src="notifications.js?v=live-alerts-1"></script>
+    <script src="install-guide.js?v=app-guide-1"></script>
   </body>
 </html>

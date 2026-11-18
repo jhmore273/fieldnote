@@ -83,7 +83,7 @@ El diseño funciona sin descargar fuentes externas: Tomorrow y su licencia OFL e
 
 ### Notificaciones PWA
 
-El sitio registra `public/sw.js` sin caché de páginas para recibir Web Push. En Configuración puedes activar, probar (10 segundos) y borrar la suscripción. En iPhone se requiere abrir desde la pantalla de inicio y aceptar el permiso.
+El sitio registra `public/sw.js` sin caché de páginas para recibir Web Push. En Configuración puedes activar y borrar la suscripción. En iPhone se requiere abrir desde la pantalla de inicio y aceptar el permiso.
 
 El Worker `fieldnote-push` se publica aparte con `npx wrangler deploy`. Usa Durable Objects SQLite por dispositivo y alarmas; no requiere mantener una pestaña abierta. Los secretos `VAPID_PUBLIC_KEY` y `VAPID_PRIVATE_KEY` están en Cloudflare, nunca en Git. Conserva las claves: rotarlas requiere volver a suscribir los dispositivos. Los despliegues de Pages continúan desde GitHub; cambios al Worker se publican con Wrangler.
 
@@ -97,10 +97,6 @@ Se sincronizan hasta 100 selecciones de los 15 mercados y hasta 40 parlays compl
 
 Por consulta se agrupan los aumentos simultáneos y se envía solo el hito más alto. Los avisos aceptados se deduplican incluso después de correcciones. Se reintentan fallos de envío. La finalización genérica por partido se sustituye por un cierre por parlay, solo tras completar todos sus encuentros. Si hay empates se indica push; si faltan estadísticas, se espera. No se notifican retrospectivamente parlays que ya estaban terminados al sincronizarse. Los porcentajes locales no se publican como parte de este cambio.
 
-### Pruebas por pick en Configuración
-
-El selector usa `public/notification-test-cases.json`, compartido por cliente y Worker. Contiene ejemplos para los 15 mercados y variantes de progreso, under, primer anotador y cierre de parlay. Se programa un solo aviso a los 10 segundos, con límite de una prueba cada 30 segundos por dispositivo. El servidor solo admite identificadores del catálogo; no acepta mensajes arbitrarios. Todos los avisos están marcados `[PRUEBA]` y no escriben en los estados de progreso, resultados o deduplicación de picks reales. El estado de entrega de pruebas se registra por separado para que un aviso real concurrente no dé una falsa confirmación.
-
 ### Retraso para evitar spoilers
 
-Todos los avisos reales pasan por una cola persistente del dispositivo con vencimiento mínimo de 60 segundos desde que se detectan. Incluye avances, anotaciones, Money Line, spread, inicio de partido y resultado del parlay. El retraso se suma al intervalo de consulta de ESPN y a los tiempos de entrega del sistema. Las pruebas simuladas mantienen los 10 segundos. La alarma toma el vencimiento más cercano entre cola, pruebas y próxima consulta. Los fallos se reintentan a los 30 segundos sin crear otro aviso; eliminar o editar el pick, eliminar el parlay o desactivar notificaciones invalida los avisos pendientes correspondientes.
+Todos los avisos reales pasan por una cola persistente del dispositivo con vencimiento mínimo de 60 segundos desde que se detectan. Incluye avances, anotaciones, Money Line, spread, inicio de partido y resultado del parlay. El retraso se suma al intervalo de consulta de ESPN y a los tiempos de entrega del sistema. La alarma toma el vencimiento más cercano entre la cola de avisos y la próxima consulta. Los fallos se reintentan a los 30 segundos sin crear otro aviso; eliminar o editar el pick, eliminar el parlay o desactivar notificaciones invalida los avisos pendientes correspondientes.

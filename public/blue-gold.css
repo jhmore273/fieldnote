@@ -38,6 +38,17 @@ body {
   border-bottom: 2px solid var(--frame-outline);
   background: linear-gradient(135deg, var(--t-head), var(--t-panel));
 }
+/* Las acciones solo ocupan espacio mientras el parlay está abierto. */
+.cardtop > .parlaytoggle[aria-expanded="false"] + .card-actions {
+  display: none;
+}
+/* Evita que el toque o el foco dejen la cabecera con color de seleccionado. */
+.cardtop > .parlaytoggle,
+.cardtop > .parlaytoggle:hover,
+.cardtop > .parlaytoggle:active,
+.cardtop > .parlaytoggle:focus {
+  background: transparent;
+}
 .mobile-nav .selected {
   box-shadow: inset 0 1px 0 #e8bc7435;
 }

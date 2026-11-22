@@ -1,5 +1,7 @@
 /* Fieldnote: azul noche, acentos dorados y marcos negros. */
 :root[data-palette="slate"] {
+  /* La app ya tiene tema oscuro: evita otra transformación automática. */
+  color-scheme: only dark;
   --frame-outline: #02060c;
   --t-bg: #0b1628;
   --t-side: #0e1e35;
@@ -20,6 +22,25 @@
   --t-rail: #3d6086;
   --t-shadow: #000a1c70;
   --t-scrim: #030b17dc;
+}
+
+/* Azul más intenso y dorado más vivo en la vista móvil. */
+@media (max-width: 760px) {
+  :root[data-palette="slate"] {
+    --t-panel: #123b70;
+    --t-panel2: #1b528a;
+    --t-head: #235f9f;
+    --t-field: #0d2649;
+    --t-hover: #286fab;
+    --t-line: #3a78b2;
+    --t-strong: #8cc8ff;
+    --t-muted: #d0e5ff;
+    --t-faint: #adcff3;
+    --t-accent: #ffd07a;
+    --t-onaccent: #2b1c07;
+    --t-accentsoft: #ffd07a22;
+    --t-rail: #528dca;
+  }
 }
 
 /* Fondo azul sólido, sin difuminados. */

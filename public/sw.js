@@ -4,7 +4,7 @@ self.addEventListener('push', event => {
   let data={};try{data=event.data?.json() || {};}catch{}
   event.waitUntil(self.registration.showNotification(data.title || 'Fieldnote', {
     body:data.body || 'Tienes una actualización en tu tablero.',
-    icon:'/icons/slate-192.png', badge:'/icons/slate-192.png',
+    icon:'/icons/ball-gold-192.png', badge:'/icons/ball-gold-192.png',
     tag:data.tag || 'fieldnote',data:{url:data.url || '/'},
   }));
 });

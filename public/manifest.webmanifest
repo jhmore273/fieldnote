@@ -11,19 +11,19 @@
   "theme_color": "#0b1628",
   "icons": [
     {
-      "src": "icons/slate-192.png",
+      "src": "icons/ball-gold-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/slate-512.png",
+      "src": "icons/ball-gold-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/slate-maskable-512.png",
+      "src": "icons/ball-gold-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

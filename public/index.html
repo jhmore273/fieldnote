@@ -20,7 +20,7 @@
     <meta name="apple-mobile-web-app-title" content="Fieldnote" />
     <link rel="stylesheet" href="notifications.css?v=live-alerts-1" />
     <link rel="stylesheet" href="app-tour.css" />
-    <link rel="stylesheet" href="blue-gold.css?v=mobile-color-3" />
+    <link rel="stylesheet" href="blue-gold.css?v=fixed-board-1" />
   </head>
   <body>
     <!-- La navegación lateral se convierte en una barra inferior en celular. -->
@@ -48,7 +48,6 @@
       </div>
     </aside>
     <div class="app-shell">
-      <div class="top-divider" aria-hidden="true"></div>
       <main id="main">
         <!-- Encabezado compacto: se eliminó el recuadro grande superior. -->
         <div class="board-heading">
@@ -78,20 +77,8 @@
               </button></span
             >
           </div>
-          <div id="cards"></div>
+          <div id="cards" role="region" aria-label="Parlays registrados" tabindex="0"></div>
         </section>
-        <div class="page-footnote">
-          <span data-icon="info"></span>
-          <p>
-            Horarios según la zona de tu dispositivo. Datos de ESPN sujetos a retrasos y disponibilidad.
-            Resultados provisionales; confirma la
-            liquidación con tu casa de apuestas.
-          </p>
-        </div>
-        <footer class="page-footer">
-          <span>fieldnote<span class="brand-dot">.</span></span
-          ><span>Tu partido. Tu perspectiva.</span>
-        </footer>
       </main>
     </div>
     <nav class="mobile-nav" aria-label="Accesos rápidos">
@@ -261,7 +248,7 @@
     <script src="event-motion.js"></script>
     <script src="app.js?v=local-time-1"></script>
     <script src="notifications.js?v=live-alerts-1"></script>
-    <script src="app-tour.js"></script>
+    <script src="app-tour.js?v=fixed-board-1"></script>
     <script src="install-guide.js?v=app-tour-1"></script>
   </body>
 </html>

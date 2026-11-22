@@ -1,6 +1,7 @@
 const startAppTour = (() => {
   const tour = document.querySelector('#app-tour');
   const settings = document.querySelector('#backup-dialog');
+  const cards = document.querySelector('#cards');
   const highlight = tour.querySelector('.tour-highlight');
   const panel = tour.querySelector('.tour-panel');
   const heading = tour.querySelector('#tour-heading');
@@ -49,8 +50,8 @@ const startAppTour = (() => {
       if (rect.top < desiredSpace && height - rect.bottom < desiredSpace) {
         const placeBelow = rect.top <= height - rect.bottom;
         const shift = placeBelow ? rect.bottom + desiredSpace - height : rect.top - desiredSpace;
-        const scroller = steps[index].settings ? settings : window;
-        scroller.scrollBy({ top: shift, behavior: 'instant' });
+        const scroller = steps[index].settings ? settings : cards.contains(target) ? cards : null;
+        scroller?.scrollBy({ top: shift, behavior: 'instant' });
         rect = target.getBoundingClientRect();
       }
     }
@@ -122,6 +123,7 @@ const startAppTour = (() => {
       closeSettings();
     }
     window.scrollTo({ top: origin.scrollY, left: origin.scrollX, behavior: 'instant' });
+    cards.scrollTop = origin.cardsScroll;
     origin.focus?.focus({ preventScroll: true });
   }
 
@@ -144,6 +146,7 @@ const startAppTour = (() => {
     origin = {
       settingsOpen: settings.open,
       settingsScroll: settings.scrollTop,
+      cardsScroll: cards.scrollTop,
       focus: document.activeElement,
       scrollX: window.scrollX,
       scrollY: window.scrollY,

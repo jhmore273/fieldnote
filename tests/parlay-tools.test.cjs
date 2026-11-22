@@ -11,6 +11,7 @@ const context = vm.createContext({ console, crypto: { randomUUID: () => 'new-id'
   TEAM_MARKETS: new Set(['moneyline','spread','teamTotalPoints']), YES_MARKETS: new Set(['anytimeTouchdown','firstTouchdown']),
   markets: Object.fromEntries(['moneyline','spread','passingYards','totalPoints'].map(k => [k, []])), legacyMarkets: {},
   groupLegs: legs => [legs], editingParlayId: 'saved-id' });
+vm.runInContext(fs.readFileSync('public/local-time.js', 'utf8'), context);
 vm.runInContext(tools, context);
 vm.runInContext(source.slice(source.indexOf('function validate('), source.indexOf('// Guarda las apuestas')), context);
 vm.runInContext(source.slice(source.indexOf('function readDraftParlay('), source.indexOf('function setEditorStep(')), context);
@@ -60,6 +61,16 @@ let draft = draftFor(base);
 const nodes = {'#drafts':{querySelectorAll:()=>[]}, '#form':{reportValidity:()=>true}, '#title':{value:'Nombre editado'}, '#review-view':{hidden:false}, '#editor':{close:()=>{}}};
 context.$ = selector => nodes[selector];
 context.document = {querySelectorAll:()=>[draft]};
+check('Guarda el instante UTC al crear o editar tanto apuestas de equipo como de jugador', () => {
+  for (const market of ['moneyline','passingYards']) {
+    draft=draftFor({...base,market,line:market==='moneyline'?0:249.5,kickoff:'2026-11-18T01:15:00Z'});
+    assert.equal(context.readDraftParlay().legs[0].kickoff,'2026-11-18T01:15:00.000Z');
+    delete draft.originalLeg.kickoff;
+    draft.games=[{id:base.event,date:'2026-11-18T02:15:00Z'}];
+    assert.equal(context.readDraftParlay().legs[0].kickoff,'2026-11-18T02:15:00.000Z');
+  }
+  draft=draftFor(base);
+});
 check('Editar conserva el identificador, la fecha y el anticipo al revisar y guardar', () => {
   const a = context.readDraftParlay();
   const b = context.readDraftParlay();

@@ -91,6 +91,10 @@ Se sincronizan identificadores de partidos (hasta 40 por dispositivo), suscripci
 
 Los parlays siguen guardados en el navegador. La suscripción no sincroniza parlays entre dispositivos. Si tienes datos en otro dominio, expórtalos e impórtalos en el dominio actual antes de activar.
 
+### Horarios de los partidos
+
+El selector, la revisión y las cabeceras de los parlays convierten el inicio original de ESPN a la zona horaria actual del dispositivo, incluyendo cambios de día y horario de verano. No requieren ubicación GPS. Las legs nuevas conservan el instante UTC en `kickoff`; las anteriores lo incorporan al actualizar sus datos desde ESPN. Los respaldos sin ese campo siguen siendo compatibles. El reloj de juego y los estados finales conservan su significado deportivo.
+
 ### Reglas de notificación por pick
 
 Se sincronizan hasta 100 selecciones de los 15 mercados y hasta 40 parlays completos. Se usa el mismo evaluador del tablero (generado desde app.js al compilar). Money Line: +17 si está habilitado o victoria final; spread: cobertura final; totales: cruce over o límite under rebasado, con under favorable confirmado al final; yardas, pases completos, intentos, recepciones y goles de campo: hitos 25/50/75 y cruce estricto para overs. En unders, los hitos representan consumo del límite, no aciertos. Pases de TD, intercepciones y TD anytime: aumentos. Primer anotador: primer touchdown confirmado, sí/no; un gol de campo no decide este mercado.

@@ -273,6 +273,7 @@ function validate(a) {
       if (
         !/^\d{6,12}$/.test(l.event) ||
         !/^\d{4}-\d{2}-\d{2}$/.test(l.date) ||
+        (l.kickoff !== undefined && !kickoffDate(l.kickoff)) ||
         (!["totalFieldGoals", "totalPoints"].includes(l.market) &&
           (typeof l.player !== "string" || !l.player.trim())) ||
         !(markets[l.market] || legacyMarkets[l.market]) ||
@@ -1398,6 +1399,10 @@ function teamsFromGameName(game) {
     .filter((code) => NFL_TEAM_LOGOS[code]);
   return codes.length === 2 ? codes.map((abbreviation) => ({ team: { abbreviation } })) : [];
 }
+function gameTimeForLeg(leg) {
+  const data = demoMode ? demoSummaries.get(leg.event) : cache.get(leg.event);
+  return gameTimeLabel(data?.header?.competitions?.[0], leg.kickoff);
+}
 function matchHeading(group) {
   const l = group[0],
     d = demoMode ? demoSummaries.get(l.event) : cache.get(l.event),
@@ -1408,7 +1413,7 @@ function matchHeading(group) {
   const markup = competitors.length
     ? competitors.map((t) => teamMarkup(t)).join('<span class="match-separator">/</span>')
     : esc(l.game);
-  return `<div class="eventheading"><span class="match-label">${markup}</span><span class="match-time">${esc(c?.status?.type?.shortDetail || l.date)}</span></div>`;
+  return `<div class="eventheading"><span class="match-label">${markup}</span><span class="match-time">${esc(gameTimeForLeg(l))}</span></div>`;
 }
 function marketLabel(l) {
   if (l.market === "moneyline")
@@ -1620,6 +1625,21 @@ function setFilterButtons() {
     b.setAttribute("aria-pressed", String(b.dataset.filter === filter));
   });
 }
+// Completa también los parlays antiguos cuando ESPN entrega la hora original.
+function recordGameKickoffs() {
+  let changed = false;
+  for (const parlay of parlays) {
+    for (const leg of parlay.legs) {
+      const competition = cache.get(leg.event)?.header?.competitions?.[0],
+        kickoff = gameKickoff(competition);
+      if (kickoff && leg.kickoff !== kickoff) {
+        leg.kickoff = kickoff;
+        changed = true;
+      }
+    }
+  }
+  return changed;
+}
 // Actualiza cada partido una sola vez, aunque aparezca en varias legs o parlays.
 async function refresh() {
   if (demoMode || busy) return;
@@ -1638,7 +1658,8 @@ async function refresh() {
   results.forEach((r, i) => {
     if (r.status === "rejected") failures.add(ids[i]);
   });
-  if (recordMoneylineEvidence()) persist();
+  const evidenceChanged = recordMoneylineEvidence(), kickoffChanged = recordGameKickoffs();
+  if (evidenceChanged || kickoffChanged) persist();
   last = new Date();
   if (!ids.length) {
     try {
@@ -1691,12 +1712,13 @@ function openEditParlay(id) {
 function fillSavedDraft(el, leg) {
   el.originalLeg = { ...leg };
   const set = (selector, value) => { el.querySelector(selector).value = value ?? ""; };
-  set(".date", leg.date);
+  const date = kickoffDate(leg.kickoff) ? dateOf(leg.kickoff) : leg.date;
+  set(".date", date);
   set(".event", leg.event);
   set(".gamename", leg.game);
   el.baseGameDate = localDate();
-  el.querySelector(".games-date-value").textContent = displayGameDate(leg.date);
-  el.querySelector(".current-game-date").hidden = leg.date === el.baseGameDate;
+  el.querySelector(".games-date-value").textContent = displayGameDate(date);
+  el.querySelector(".current-game-date").hidden = date === el.baseGameDate;
   el.querySelector(".next-game-date").disabled = false;
   const market = el.querySelector(".market");
   if (!markets[leg.market] && legacyMarkets[leg.market])
@@ -1712,7 +1734,7 @@ function fillSavedDraft(el, leg) {
   el.querySelector(".early-payout-checkbox").checked = leg.earlyPayout17 !== false;
   updateMarket(el);
   const picker = el.querySelector(".gamepicker");
-  picker.innerHTML = `<button type="button" class="gameoption" aria-pressed="true">${esc(leg.game)}<small>Partido guardado · Cargar opciones</small></button>`;
+  picker.innerHTML = `<button type="button" class="gameoption" aria-pressed="true">${esc(leg.game)}<small>${esc(gameTimeForLeg(leg))} · Cargar opciones</small></button>`;
   picker.querySelector("button").onclick = () => loadPlayers(el);
   if (TEAM_MARKETS.has(leg.market)) {
     el.querySelector(".spread-team-picker").innerHTML = `<button type="button" class="spread-team-button" aria-pressed="true">${esc(leg.teamAbbreviation)} · Cargar equipos</button>`;
@@ -1838,7 +1860,7 @@ async function loadGames(el, provided) {
             .map((t) => teamMarkup(t, "teamlogo"))
             .join(
               '<span class="versus">vs</span>',
-            )}<small>${esc(e.status?.type?.shortDetail)}</small></button>`,
+            )}<small>${esc(gameTimeLabel(e))}</small></button>`,
       )
       .join("");
     picker.querySelectorAll("button").forEach(
@@ -1997,7 +2019,8 @@ function readDraftParlay() {
     name: $("#title").value.trim(),
     legs: [...document.querySelectorAll(".draft")].map((el) => {
       const q = (s) => el.querySelector(s).value,
-        market = q(".market");
+        market = q(".market"),
+        kickoff = selectedGameKickoff(el, q(".event"));
       if (TEAM_MARKETS.has(market)) {
         if (!q(".spread-team-id")) {
           el.querySelector(".draftstatus").textContent = "Selecciona el equipo de la apuesta.";
@@ -2006,6 +2029,7 @@ function readDraftParlay() {
         const leg = {
           event: q(".event"),
           date: q(".date"),
+          ...(kickoff ? { kickoff } : {}),
           game: q(".gamename"),
           player: q(".spread-team-abbr"),
           playerId: null,
@@ -2029,6 +2053,7 @@ function readDraftParlay() {
       const leg = {
         event: q(".event"),
         date: q(".date"),
+        ...(kickoff ? { kickoff } : {}),
         game: q(".gamename"),
         player: game ? "Total del partido" : q(".playerinput").trim(),
         playerId: game
@@ -2070,7 +2095,7 @@ function showReview() {
     $("#review-view").innerHTML = `<h3>${esc(p.name)}</h3>${groupLegs(p.legs)
       .map(
         (group) =>
-          `<div class="review-group"><h4>${esc(group[0].game)} · ${esc(group[0].date)}</h4>${group.map((l) => `<div class="review-leg">${esc(l.player)}<small title="${esc(marketLabel(l))}" aria-label="${esc(marketLabel(l))}">${esc(compactMarketLabel(l))}</small></div>`).join("")}</div>`,
+          `<div class="review-group"><h4>${esc(group[0].game)} · ${esc(gameTimeForLeg(group[0]))}</h4>${group.map((l) => `<div class="review-leg">${esc(l.player)}<small title="${esc(marketLabel(l))}" aria-label="${esc(marketLabel(l))}">${esc(compactMarketLabel(l))}</small></div>`).join("")}</div>`,
       )
       .join(
         "",

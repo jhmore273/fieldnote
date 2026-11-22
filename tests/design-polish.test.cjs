@@ -5,7 +5,7 @@ const button={disabled:false,setAttribute(){},querySelector:()=>caption};
 const context=vm.createContext({console,Date,Math,Number,document:{querySelector:()=>row,getElementById:id=>id==='connection'?label:button},
   demoMode:false,busy:false,parlays:[{legs:[{event:'1'},{event:'2'}]}],cache:new Map(),failures:new Set(),
   get:async path=>{if(path.includes('event=2'))throw Error('unavailable');return {header:{}};},
-  recordMoneylineEvidence:()=>false,persist:()=>true,$:()=>button});
+  recordMoneylineEvidence:()=>false,recordGameKickoffs:()=>false,persist:()=>true,$:()=>button});
 vm.runInContext(fs.readFileSync('public/design-polish.js','utf8'),context);
 context.render=()=>context.renderConnectionStatus();
 vm.runInContext(app.slice(app.indexOf('async function refresh()'),app.indexOf('// Obtiene la fecha de hoy')),context);

@@ -1529,14 +1529,15 @@ function renderLeg(l, parlayId = "", legIndex = 0) {
 function render() {
   const motionBefore = captureRenderMotion();
   const items = demoMode ? demoParlays : parlays,
-    list = items.filter((p) => filter === "all" || parlayState(p) === filter);
+    list = items.filter((p) => filter === "all" ? parlayState(p) !== "done" : parlayState(p) === filter);
   $("#demo-banner").hidden = !demoMode;
   $("#cards").innerHTML = list.length
     ? list
         .map((p) => {
           const state = parlayState(p),
-            stateLabel = { live: "EN JUEGO", pending: "PENDIENTE", done: "TERMINADO" }[state];
-          return `<article class="card" data-parlay-id="${esc(p.id)}"><div class="cardtop"><button class="parlaytoggle" data-toggle="${esc(p.id)}" aria-expanded="${expandedParlays.has(p.id)}" aria-controls="legs-${esc(p.id)}"><span class="card-kicker">${demoMode ? "EJEMPLO" : "PARLAY"} / ${String(items.indexOf(p) + 1).padStart(2, "0")}</span><span class="parlayname">${esc(p.name)}</span><span class="parlaymeta"><span class="parlay-status ${state}">${stateLabel}</span><span class="togglecaption">${expandedParlays.has(p.id) ? "Toca para cerrar" : "Toca para ver las legs"}</span></span>${parlaySummaryMarkup(p)}<span class="parlay-chevron" aria-hidden="true">${icon("arrow")}</span></button>${demoMode ? "" : `<div class="card-actions"><button class="edit-parlay" data-edit="${esc(p.id)}" aria-label="Editar ${esc(p.name)}" title="Editar parlay">${icon("edit")}<span>Editar</span></button><button class="delete" data-delete="${esc(p.id)}" aria-label="Eliminar ${esc(p.name)}" title="Eliminar parlay">${icon("trash")}</button></div>`}</div><div class="parlaybody" id="legs-${esc(p.id)}" ${expandedParlays.has(p.id) ? "" : "hidden"}>${groupLegs(
+            result = state === "done" ? completedParlayResult(p) : null,
+            stateLabel = result?.label || { live: "EN JUEGO", pending: "PENDIENTE", done: "TERMINADO" }[state];
+          return `<article class="card" data-parlay-id="${esc(p.id)}"${result ? ` data-result="${result.outcome}"` : ""}><div class="cardtop"><button class="parlaytoggle" data-toggle="${esc(p.id)}" aria-expanded="${expandedParlays.has(p.id)}" aria-controls="legs-${esc(p.id)}"><span class="card-kicker">${demoMode ? "EJEMPLO" : "PARLAY"} / ${String(items.indexOf(p) + 1).padStart(2, "0")}</span><span class="parlayname">${esc(p.name)}</span><span class="parlaymeta"><span class="parlay-status ${state} ${result?.outcome || ""}"${result ? ` title="${esc(result.note)}"` : ""}>${stateLabel}</span><span class="togglecaption">${expandedParlays.has(p.id) ? "Toca para cerrar" : "Toca para ver las legs"}</span></span>${parlaySummaryMarkup(p)}<span class="parlay-chevron" aria-hidden="true">${icon("arrow")}</span></button>${demoMode ? "" : `<div class="card-actions"><button class="edit-parlay" data-edit="${esc(p.id)}" aria-label="Editar ${esc(p.name)}" title="Editar parlay">${icon("edit")}<span>Editar</span></button><button class="delete" data-delete="${esc(p.id)}" aria-label="Eliminar ${esc(p.name)}" title="Eliminar parlay">${icon("trash")}</button></div>`}</div><div class="parlaybody" id="legs-${esc(p.id)}" ${expandedParlays.has(p.id) ? "" : "hidden"}>${result ? `<p class="parlay-result-note">${esc(result.note)}</p>` : ""}${groupLegs(
             p.legs,
           )
             .map(
@@ -1546,7 +1547,7 @@ function render() {
             .join("")}</div></article>`;
         })
         .join("")
-    : `<div class="empty"><div class="empty-symbol">${icon("football")}</div><small>TU TABLERO ESTÁ LISTO</small><h2>${items.length ? "Nada por aquí, por ahora." : "El juego empieza con tu primer parlay."}</h2><p>${items.length ? "Prueba otro filtro para encontrar tus parlays." : "Registra tus selecciones y sigue cada yarda, touchdown y gol de campo en un solo lugar."}</p><div class="empty-actions">${items.length ? "" : `<button class="primary" id="emptynew">${icon("plus")}Crear mi primer parlay</button>`}</div></div>`;
+    : `<div class="empty"><div class="empty-symbol">${icon("football")}</div><small>TU TABLERO ESTÁ LISTO</small><h2>${!items.length ? "El juego empieza con tu primer parlay." : filter === "done" ? "Aún no hay parlays terminados." : filter === "live" ? "No hay parlays en juego." : "No hay parlays activos."}</h2><p>${!items.length ? "Registra tus selecciones y sigue cada yarda, touchdown y gol de campo en un solo lugar." : filter === "all" ? "Tus parlays finalizados están en Terminados." : "Prueba otro filtro para encontrar tus parlays."}</p><div class="empty-actions">${items.length ? "" : `<button class="primary" id="emptynew">${icon("plus")}Crear mi primer parlay</button>`}</div></div>`;
   $("#refresh").disabled = busy || demoMode;
   renderConnectionStatus();
   $("#emptynew")?.addEventListener("click", openEditor);

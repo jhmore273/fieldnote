@@ -22,7 +22,7 @@ const startAppTour = (() => {
       target: '.filters',
       demo: true,
       title: 'Encuentra tus parlays',
-      description: 'Elige En juego para seguir los partidos activos, Pendientes para los que aún no empiezan o Terminados para revisar los resultados.',
+      description: 'Todos reúne los parlays pendientes y en juego. Elige En juego para seguir los partidos activos o Terminados para revisar los resultados de tus parlays finalizados.',
     },
     {
       target: '.push-actions button:not([hidden])',

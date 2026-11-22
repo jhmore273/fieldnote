@@ -23,6 +23,26 @@ function summarizeParlay(parlay, evaluateLeg = evaluate) {
   return { counts, states, favorable: counts.won + counts.favorable, total: states.length };
 }
 
+// El resultado del parlay solo se confirma tras finalizar todos sus partidos.
+function completedParlayResult(parlay, evaluateLeg = evaluate) {
+  if (!parlay.legs.length || !parlay.legs.every(leg => evaluateLeg(leg).state === "done"))
+    return null;
+  const { counts, total } = summarizeParlay(parlay, evaluateLeg);
+  if (counts.lost)
+    return { outcome: "lost", label: "PERDIDO", note: "Al menos una leg terminó perdida." };
+  if (counts.unknown)
+    return { outcome: "unknown", label: "POR VERIFICAR", note: "Faltan estadísticas actualizadas para confirmar el resultado." };
+  if (counts.push === total)
+    return { outcome: "push", label: "ANULADO / PUSH", note: "Todas las legs terminaron empatadas con su línea; confirma la devolución con tu casa." };
+  return {
+    outcome: "won",
+    label: "GANADO",
+    note: counts.push
+      ? "Ganado con legs en push; confirma el pago ajustado con tu casa."
+      : "Todas las legs se cumplieron según los datos y reglas registrados.",
+  };
+}
+
 function parlaySummaryMarkup(parlay) {
   const { counts, states, favorable, total } = summarizeParlay(parlay);
   const detail = [

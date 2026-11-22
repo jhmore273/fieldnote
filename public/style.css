@@ -4980,7 +4980,7 @@ dialog,
 }
 .toolbar .filters {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
   width: 100%;
   max-width: none;
@@ -6040,4 +6040,27 @@ input[type="range"] {
   #toast {
     bottom: calc(104px + env(safe-area-inset-bottom));
   }
+}
+
+/* Resultado del parlay tras finalizar todos sus partidos. */
+.parlay-status.won {
+  color: var(--t-goodtext);
+  background: var(--t-goodbg);
+  border-color: var(--t-goodborder);
+}
+.parlay-status.lost {
+  color: var(--t-badtext);
+  background: var(--t-badbg);
+  border-color: var(--t-badborder);
+}
+.parlay-status:is(.push, .unknown) {
+  color: var(--t-text);
+  background: var(--t-panel2);
+  border-color: var(--t-strong);
+}
+.parlay-result-note {
+  margin: 8px 13px 14px;
+  color: var(--t-muted);
+  font-size: 13px;
+  line-height: 1.6;
 }

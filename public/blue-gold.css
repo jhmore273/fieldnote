@@ -83,10 +83,6 @@ dialog {
 .leg + .leg {
   border-top: 2px solid var(--frame-outline);
 }
-.card-actions {
-  border-top: 1px solid var(--frame-outline);
-}
-
 .primary,
 .secondary,
 .refresh,

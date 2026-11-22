@@ -27,19 +27,19 @@
 /* Azul más intenso y dorado más vivo en la vista móvil. */
 @media (max-width: 760px) {
   :root[data-palette="slate"] {
-    --t-panel: #123b70;
-    --t-panel2: #1b528a;
-    --t-head: #235f9f;
-    --t-field: #0d2649;
-    --t-hover: #286fab;
-    --t-line: #3a78b2;
-    --t-strong: #8cc8ff;
+    --t-panel: #0e3e7c;
+    --t-panel2: #155997;
+    --t-head: #1b63a8;
+    --t-field: #0a284f;
+    --t-hover: #2076bb;
+    --t-line: #3482c5;
+    --t-strong: #91d0ff;
     --t-muted: #d0e5ff;
     --t-faint: #adcff3;
-    --t-accent: #ffd07a;
+    --t-accent: #ffcc58;
     --t-onaccent: #2b1c07;
-    --t-accentsoft: #ffd07a22;
-    --t-rail: #528dca;
+    --t-accentsoft: #ffcc5822;
+    --t-rail: #4f97df;
   }
 }
 

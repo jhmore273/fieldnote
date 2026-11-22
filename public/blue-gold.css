@@ -1,0 +1,158 @@
+/* Fieldnote: azul noche, acentos dorados y marcos negros. */
+:root[data-palette="slate"] {
+  --frame-outline: #02060c;
+  --t-bg: #0b1628;
+  --t-side: #0e1e35;
+  --t-panel: #183050;
+  --t-panel2: #234366;
+  --t-head: #2c537d;
+  --t-field: #101f36;
+  --t-hover: #315f8c;
+  --t-line: #365e88;
+  --t-strong: #7badd5;
+  --t-text: #eef5ff;
+  --t-muted: #b5cce7;
+  --t-faint: #8facd0;
+  --t-accent: #e8bc74;
+  --t-onaccent: #2b2010;
+  --t-accentsoft: #e8bc7422;
+  --t-target: #ecf5ff;
+  --t-rail: #3d6086;
+  --t-shadow: #000a1c70;
+  --t-scrim: #030b17dc;
+}
+
+/* Fondo azul sólido, sin difuminados. */
+body {
+  background: var(--t-bg);
+}
+
+.card {
+  border: 2px solid var(--frame-outline);
+  box-shadow:
+    inset 0 1px 0 #c2ddff12,
+    0 4px 0 var(--frame-outline),
+    0 12px 24px #020a1870;
+}
+.cardtop {
+  border-bottom: 2px solid var(--frame-outline);
+  background: linear-gradient(135deg, var(--t-head), var(--t-panel));
+}
+.mobile-nav .selected {
+  box-shadow: inset 0 1px 0 #e8bc7435;
+}
+
+/* Los estados ganados, favorables y perdidos conservan su significado. */
+.prop-progress:is(.pace-pending, .pace-unknown, .pace-push) {
+  --pace-bg: #172c46;
+  --pace-border: #779ac3;
+  --pace-fill: #779ac3;
+  --pace-text: #daeaff;
+}
+.leg:is([data-state="pending"], [data-state="unknown"], [data-state="push"]) .pill {
+  background: var(--t-field);
+}
+#app-tour .tour-highlight {
+  border-color: var(--t-accent);
+}
+#app-tour .tour-progress {
+  color: var(--t-accent);
+}
+
+/* Contornos negros visibles: separan los bloques conservando azul y dorado. */
+.eventgroup,
+.eventheading,
+.moneyline-scoreboard,
+.draft,
+.empty,
+.local-card,
+.toolbar .filters,
+.mobile-nav,
+dialog {
+  border: 2px solid var(--frame-outline);
+}
+.eventgroup,
+.moneyline-scoreboard {
+  box-shadow:
+    inset 0 1px 0 #c2ddff0d,
+    0 2px 0 #0009;
+}
+.leg {
+  border-color: var(--frame-outline);
+}
+.leg + .leg {
+  border-top: 2px solid var(--frame-outline);
+}
+.card-actions {
+  border-top: 1px solid var(--frame-outline);
+}
+
+.primary,
+.secondary,
+.refresh,
+.icon-button,
+.delete,
+.card-actions .edit-parlay,
+.card-actions .delete,
+.gameoption,
+.draft .spread-team-button,
+.toolbar .filters button,
+.toolbar .filters button:not(.active),
+.mobile-nav a,
+.mobile-nav button,
+.mobile-nav button:not(.selected) {
+  border: 2px solid var(--frame-outline);
+}
+.gameoption[aria-pressed="true"],
+.draft .spread-team-button[aria-pressed="true"] {
+  border-color: var(--frame-outline);
+  box-shadow:
+    inset 0 0 0 1px var(--t-accent),
+    0 2px 0 #0008;
+}
+.draft input:not([type="checkbox"]):not([type="range"]),
+.draft select,
+#title {
+  border: 2px solid var(--frame-outline);
+}
+
+/* Marcos interiores: cada leg y su lectura quedan delimitadas en negro. */
+.eventgroup .leg {
+  margin: 10px 8px;
+  border: 2px solid var(--frame-outline);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 1px 0 #b8d8ff0b,
+    0 2px 0 #0008;
+}
+.eventgroup .leg-info {
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--frame-outline);
+}
+.leg .leg-reading {
+  padding: 10px;
+  border: 2px solid var(--frame-outline);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--t-field) 78%, var(--t-panel));
+  box-shadow: inset 0 1px 4px #0004;
+}
+.leg .moneyline-scoreboard {
+  border: 2px solid var(--frame-outline);
+  box-shadow:
+    inset 0 1px 4px #0004,
+    0 2px 0 #0009;
+}
+.leg .progress-rail,
+.card-progress-track {
+  box-shadow:
+    0 0 0 1.5px var(--frame-outline),
+    inset 0 1px 2px #0006;
+}
+.leg .progress-badge {
+  box-shadow:
+    0 0 0 2px var(--frame-outline),
+    0 3px 6px #0005;
+}
+.leg .pill {
+  box-shadow: 0 0 0 1px var(--frame-outline);
+}

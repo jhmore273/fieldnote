@@ -23,13 +23,13 @@ body {
   left: var(--football-center, 50%);
   top: calc(50% - 2px);
   transform: translate(-50%, -50%);
-  flex: 0 0 38px;
-  width: 38px;
-  height: 38px;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
   margin: 0;
   pointer-events: none;
 }
-.football-float { display: block; width: 100%; height: 38px; animation: none; transform: none; }
+.football-float { display: block; width: 100%; height: 100%; animation: none; transform: none; }
 .football-spin { display: block; width: 100%; height: 100%; }
 .football-air {
   position: absolute;
@@ -82,9 +82,11 @@ body {
 @media (max-width: 480px) {
   .board-heading { min-height: 36px; }
   .board-heading h1 { gap: 7px; }
-  .board-heading h1 > .heading-football { flex-basis: 30px; width: 30px; height: 30px; }
-  .football-float { height: 30px; }
+  .board-heading h1 > .heading-football { flex-basis: 40px; width: 40px; height: 40px; }
   .football-shadow { width: 20px; left: 5px; }
+}
+@media (max-width: 350px) {
+  .board-heading h1 > .heading-football { flex-basis: 36px; width: 36px; height: 36px; }
 }
 .card {
   background: linear-gradient(155deg, var(--t-panel2), var(--t-panel) 48%);
